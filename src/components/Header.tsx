@@ -1,16 +1,24 @@
+
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import Logo from "./Logo";
+import UserMenu from "./UserMenu";
 
 const Header = () => {
+  const { user } = useAuth();
+
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo size="md" showText={true} />
+            <Link to="/">
+              <Logo size="md" showText={true} />
+            </Link>
           </div>
 
           {/* Search Bar */}
@@ -36,12 +44,23 @@ const Header = () => {
             <Button variant="ghost" className="text-gray-700 hover:text-green-600">
               For Buyers
             </Button>
-            <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-              Sign In
-            </Button>
-            <Button className="bg-green-600 hover:bg-green-700 text-white">
-              Get Started
-            </Button>
+            
+            {user ? (
+              <UserMenu />
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
