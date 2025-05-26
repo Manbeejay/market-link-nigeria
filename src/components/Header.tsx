@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Logo from "./Logo";
 
 const Header = () => {
   return (
@@ -10,12 +10,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="text-2xl font-bold text-green-600 flex items-center gap-2">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm">🌾</span>
-              </div>
-              MarketLink Nigeria
-            </div>
+            <Logo size="md" showText={true} />
           </div>
 
           {/* Search Bar */}

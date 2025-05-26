@@ -1,6 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Logo from "./Logo";
 
 const Footer = () => {
   return (
@@ -9,12 +9,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold text-green-400 flex items-center gap-2">
-              <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
-                <span className="text-gray-900 text-sm">🌾</span>
-              </div>
-              MarketLink Nigeria
-            </div>
+            <Logo size="md" showText={true} className="text-green-400" />
             <p className="text-gray-400 leading-relaxed">
               Connecting Nigerian farmers with buyers for fresh, quality agricultural products and fair trade.
             </p>
