@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Logo from '@/components/Logo';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -18,14 +19,14 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   
   const { signUp, signIn, user } = useAuth();
+  const { isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
 
-  // Redirect to home if already authenticated
+  // Once signed in, send members to the marketplace and everyone else to checkout
   useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+    if (!user || subLoading) return;
+    navigate(isActive ? '/' : '/subscribe');
+  }, [user, subLoading, isActive, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
