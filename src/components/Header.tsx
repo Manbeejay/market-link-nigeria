@@ -35,15 +35,16 @@ const Header = () => {
 
           {/* Navigation */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="text-gray-700 hover:text-green-600">
-              Browse Products
-            </Button>
-            <Button variant="ghost" className="text-gray-700 hover:text-green-600">
-              For Farmers
-            </Button>
-            <Button variant="ghost" className="text-gray-700 hover:text-green-600">
-              For Buyers
-            </Button>
+            <Link to="/browse">
+              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+                Browse Products
+              </Button>
+            </Link>
+            <Link to="/my-listings">
+              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+                My Listings
+              </Button>
+            </Link>
             
             {user ? (
               <UserMenu />
