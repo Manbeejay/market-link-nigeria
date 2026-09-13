@@ -45,6 +45,11 @@ const Header = () => {
                 My Listings
               </Button>
             </Link>
+            <Link to="/orders">
+              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+                Orders
+              </Button>
+            </Link>
             
             {user ? (
               <UserMenu />
