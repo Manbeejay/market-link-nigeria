@@ -10,8 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, MessageCircle, Star } from "lucide-react";
 import { formatNaira } from "@/lib/nigeria";
+import OrderChat from "@/components/orders/OrderChat";
+import ReviewDialog from "@/components/orders/ReviewDialog";
 
 interface OrderRow {
   id: string;
@@ -32,6 +34,7 @@ const statusStyles: Record<string, string> = {
   requested: "bg-amber-100 text-amber-800",
   accepted: "bg-blue-100 text-blue-800",
   paid: "bg-green-100 text-green-800",
+  delivered: "bg-emerald-100 text-emerald-800",
   completed: "bg-green-600 text-white",
   cancelled: "bg-gray-200 text-gray-700",
   disputed: "bg-red-100 text-red-800",
@@ -41,6 +44,7 @@ const statusLabels: Record<string, string> = {
   requested: "Awaiting farmer",
   accepted: "Accepted – payment due",
   paid: "Paid",
+  delivered: "Delivered – awaiting buyer confirmation",
   completed: "Completed",
   cancelled: "Declined / cancelled",
   disputed: "Disputed",
@@ -56,6 +60,11 @@ const Orders = () => {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reviewedOrderIds, setReviewedOrderIds] = useState<string[]>([]);
+  const [chatOrder, setChatOrder] = useState<{ id: string; name: string } | null>(null);
+  const [reviewOrder, setReviewOrder] = useState<
+    { id: string; revieweeId: string; name: string } | null
+  >(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -64,15 +73,16 @@ const Orders = () => {
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("orders")
-      .select(SELECT)
-      .order("created_at", { ascending: false });
+    const [{ data, error }, { data: reviews }] = await Promise.all([
+      supabase.from("orders").select(SELECT).order("created_at", { ascending: false }),
+      supabase.from("reviews").select("order_id").eq("reviewer_id", user.id),
+    ]);
     if (error) {
       toast({ title: "Could not load orders", description: error.message, variant: "destructive" });
     } else {
       setOrders((data ?? []) as unknown as OrderRow[]);
     }
+    setReviewedOrderIds((reviews ?? []).map((r) => r.order_id));
     setLoading(false);
   }, [user, toast]);
 
@@ -80,14 +90,14 @@ const Orders = () => {
     load();
   }, [load]);
 
-  const setStatus = async (order: OrderRow, status: string) => {
+  const setStatus = async (order: OrderRow, status: string, message: string) => {
     setBusyId(order.id);
     const { error } = await supabase.from("orders").update({ status }).eq("id", order.id);
     setBusyId(null);
     if (error) {
       toast({ title: "Could not update order", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: status === "accepted" ? "Order accepted" : "Order declined" });
+      toast({ title: message });
       load();
     }
   };
@@ -112,89 +122,127 @@ const Orders = () => {
   const purchases = orders.filter((o) => o.buyer_id === user?.id);
   const sales = orders.filter((o) => o.farmer_id === user?.id);
 
-  const renderCard = (order: OrderRow, role: "buyer" | "farmer") => (
-    <Card key={order.id}>
-      <CardContent className="p-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900">
-              {order.products?.title ?? "Product removed"}
-            </h3>
-            <Badge className={statusStyles[order.status] ?? ""}>
-              {statusLabels[order.status] ?? order.status}
-            </Badge>
-          </div>
-          <p className="text-sm text-gray-600">
-            {Number(order.quantity)} {order.products?.unit ?? "unit"} ×{" "}
-            {formatNaira(Number(order.unit_price))} ={" "}
-            <span className="font-semibold text-green-700">
-              {formatNaira(Number(order.total_amount))}
-            </span>
-          </p>
-          <p className="text-sm text-gray-500">
-            {role === "buyer"
-              ? `Farmer: ${order.farmer?.full_name ?? "Verified farmer"}`
-              : `Buyer: ${order.buyer?.full_name ?? "Buyer"}`}{" "}
-            · {new Date(order.created_at).toLocaleDateString()}
-          </p>
-          {role === "farmer" && order.status === "paid" && order.commission_amount != null && (
-            <p className="text-sm text-gray-500">
-              Platform commission: {formatNaira(Number(order.commission_amount))}
-            </p>
-          )}
-        </div>
+  const renderCard = (order: OrderRow, role: "buyer" | "farmer") => {
+    const otherName =
+      role === "buyer"
+        ? order.farmer?.full_name ?? "Verified farmer"
+        : order.buyer?.full_name ?? "Buyer";
+    const otherId = role === "buyer" ? order.farmer_id : order.buyer_id;
+    const canReview = order.status === "completed" && !reviewedOrderIds.includes(order.id);
 
-        <div className="flex gap-2">
-          {role === "farmer" && order.status === "requested" && (
-            <>
+    return (
+      <Card key={order.id}>
+        <CardContent className="p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-gray-900">
+                {order.products?.title ?? "Product removed"}
+              </h3>
+              <Badge className={statusStyles[order.status] ?? ""}>
+                {statusLabels[order.status] ?? order.status}
+              </Badge>
+            </div>
+            <p className="text-sm text-gray-600">
+              {Number(order.quantity)} {order.products?.unit ?? "unit"} ×{" "}
+              {formatNaira(Number(order.unit_price))} ={" "}
+              <span className="font-semibold text-green-700">
+                {formatNaira(Number(order.total_amount))}
+              </span>
+            </p>
+            <p className="text-sm text-gray-500">
+              {role === "buyer" ? `Farmer: ${otherName}` : `Buyer: ${otherName}`} ·{" "}
+              {new Date(order.created_at).toLocaleDateString()}
+            </p>
+            {role === "farmer" && order.status === "paid" && order.commission_amount != null && (
+              <p className="text-sm text-gray-500">
+                Platform commission: {formatNaira(Number(order.commission_amount))}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setChatOrder({ id: order.id, name: otherName })}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat
+            </Button>
+
+            {role === "farmer" && order.status === "requested" && (
+              <>
+                <Button
+                  className="bg-green-600 hover:bg-green-700"
+                  disabled={busyId === order.id}
+                  onClick={() => setStatus(order, "accepted", "Order accepted")}
+                >
+                  Accept
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700"
+                  disabled={busyId === order.id}
+                  onClick={() => setStatus(order, "cancelled", "Order declined")}
+                >
+                  Decline
+                </Button>
+              </>
+            )}
+            {role === "buyer" && order.status === "accepted" && (
               <Button
                 className="bg-green-600 hover:bg-green-700"
                 disabled={busyId === order.id}
-                onClick={() => setStatus(order, "accepted")}
+                onClick={() => payForOrder(order)}
               >
-                Accept
+                {busyId === order.id ? "Starting payment..." : "Pay now"}
               </Button>
+            )}
+            {role === "buyer" && order.status === "requested" && (
               <Button
                 variant="outline"
-                className="text-red-600 hover:text-red-700"
                 disabled={busyId === order.id}
-                onClick={() => setStatus(order, "cancelled")}
+                onClick={() => setStatus(order, "cancelled", "Request cancelled")}
               >
-                Decline
+                Cancel request
               </Button>
-            </>
-          )}
-          {role === "buyer" && order.status === "accepted" && (
-            <Button
-              className="bg-green-600 hover:bg-green-700"
-              disabled={busyId === order.id}
-              onClick={() => payForOrder(order)}
-            >
-              {busyId === order.id ? "Starting payment..." : "Pay now"}
-            </Button>
-          )}
-          {role === "buyer" && order.status === "requested" && (
-            <Button
-              variant="outline"
-              disabled={busyId === order.id}
-              onClick={() => setStatus(order, "cancelled")}
-            >
-              Cancel request
-            </Button>
-          )}
-          {role === "farmer" && order.status === "paid" && (
-            <Button
-              variant="outline"
-              disabled={busyId === order.id}
-              onClick={() => setStatus(order, "completed")}
-            >
-              Mark delivered
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+            )}
+            {role === "farmer" && order.status === "paid" && (
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                disabled={busyId === order.id}
+                onClick={() => setStatus(order, "delivered", "Marked as delivered")}
+              >
+                Mark completed
+              </Button>
+            )}
+            {role === "buyer" && (order.status === "delivered" || order.status === "paid") && (
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                disabled={busyId === order.id}
+                onClick={() => setStatus(order, "completed", "Order confirmed as received")}
+              >
+                Confirm received
+              </Button>
+            )}
+            {canReview && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setReviewOrder({ id: order.id, revieweeId: otherId, name: otherName })
+                }
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Leave review
+              </Button>
+            )}
+            {order.status === "completed" && reviewedOrderIds.includes(order.id) && (
+              <span className="self-center text-sm text-gray-500">Review submitted</span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const empty = (text: string) => (
     <Card>
@@ -239,6 +287,25 @@ const Orders = () => {
         )}
       </main>
       <Footer />
+
+      {chatOrder && (
+        <OrderChat
+          orderId={chatOrder.id}
+          otherPartyName={chatOrder.name}
+          open={!!chatOrder}
+          onOpenChange={(open) => !open && setChatOrder(null)}
+        />
+      )}
+      {reviewOrder && (
+        <ReviewDialog
+          orderId={reviewOrder.id}
+          revieweeId={reviewOrder.revieweeId}
+          revieweeName={reviewOrder.name}
+          open={!!reviewOrder}
+          onOpenChange={(open) => !open && setReviewOrder(null)}
+          onSubmitted={load}
+        />
+      )}
     </div>
   );
 };
