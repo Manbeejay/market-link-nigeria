@@ -13,6 +13,7 @@ import MyListings from "./pages/MyListings";
 import ProductDetail from "./pages/ProductDetail";
 import Orders from "./pages/Orders";
 import BankAccount from "./pages/BankAccount";
+import Wallet from "./pages/Wallet";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
