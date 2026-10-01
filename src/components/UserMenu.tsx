@@ -40,6 +40,12 @@ const UserMenu = () => {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
+          <Link to="/wallet">
+            <Wallet className="mr-2 h-4 w-4" />
+            <span>My Wallet</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/bank-account">
             <Landmark className="mr-2 h-4 w-4" />
             <span>Payout Bank Account</span>
