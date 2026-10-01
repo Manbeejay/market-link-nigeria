@@ -155,7 +155,7 @@ const captureScreenshot = async (): Promise<File | null> => {
 
     const timestamp = new Date()
       .toISOString()
-      .replaceAll(/[:.]/g, "-")
+      .split(/[:.]/g).join( "-")
       .replace("T", "_")
       .replace("Z", "");
 
@@ -1002,7 +1002,7 @@ export const PromptInputTextarea = ({
         attachments.files.length > 0
       ) {
         e.preventDefault();
-        const lastAttachment = attachments.files.at(-1);
+        const lastAttachment = attachments.files[files.length - 1];
         if (lastAttachment) {
           attachments.remove(lastAttachment.id);
         }

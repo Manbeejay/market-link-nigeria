@@ -22,8 +22,7 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import assistantIcon from "@/assets/wallet-assistant.png";
+import { ArrowLeft, Plus, Sprout, Trash2 } from "lucide-react";
 
 interface ThreadRow {
   id: string;
@@ -102,12 +101,12 @@ const ChatWindow = ({
         <ConversationContent>
           {messages.length === 0 ? (
             <ConversationEmptyState
-              icon={<img src={assistantIcon} alt="" className="h-16 w-16" />}
+              icon={<Sprout className="h-14 w-14 text-primary" />}
               title="Ask about your wallet"
               description="Questions about earnings, commission, payments and payouts — answered from your own records."
             >
               <div className="flex flex-col items-center gap-3">
-                <img src={assistantIcon} alt="" className="h-16 w-16" />
+                <Sprout className="h-14 w-14 text-primary" />
                 <h3 className="font-semibold text-foreground">Ask about your wallet</h3>
                 <p className="text-sm text-muted-foreground max-w-sm text-center">
                   Questions about earnings, commission, payments and payouts — answered from your own records.
@@ -295,7 +294,7 @@ const WalletAssistant = () => {
 
         <section className="flex flex-1 min-h-0 flex-col rounded-lg border bg-card">
           <div className="flex items-center gap-3 border-b p-3">
-            <img src={assistantIcon} alt="" className="h-8 w-8" />
+            <Sprout className="h-7 w-7 text-primary" />
             <div className="flex-1">
               <h1 className="font-semibold text-foreground">Wallet Assistant</h1>
               <p className="text-xs text-muted-foreground">AI-powered answers from your payment records</p>
