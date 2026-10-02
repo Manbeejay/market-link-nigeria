@@ -9,7 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wallet as WalletIcon, ArrowDownCircle, Receipt } from "lucide-react";
+import { Wallet as WalletIcon, ArrowDownCircle, Receipt, Sprout } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/nigeria";
 
 interface TransactionRow {
@@ -104,9 +106,15 @@ const Wallet = () => {
           <WalletIcon className="h-7 w-7 text-green-600" />
           <h1 className="text-3xl font-bold text-gray-900">My Wallet</h1>
         </div>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-4">
           Manage the bank account that receives your earnings and review your payment history.
         </p>
+        <Button asChild className="mb-8">
+          <Link to="/wallet/assistant">
+            <Sprout className="mr-2 h-4 w-4" />
+            Ask the Wallet Assistant
+          </Link>
+        </Button>
 
         <div className="grid gap-4 sm:grid-cols-3 mb-10">
           {summary.map((item) => (
