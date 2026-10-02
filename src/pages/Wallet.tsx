@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BankAccountForm from "@/components/wallet/BankAccountForm";
+import WalletInsights from "@/components/wallet/WalletInsights";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -128,6 +129,10 @@ const Wallet = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="mb-10">
+          <WalletInsights />
         </div>
 
         <div className="mb-10">
