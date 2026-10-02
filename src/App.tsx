@@ -16,6 +16,9 @@ import BankAccount from "./pages/BankAccount";
 import Wallet from "./pages/Wallet";
 import WalletAssistant from "./pages/WalletAssistant";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import ContactUs from "./pages/ContactUs";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/wallet/assistant" element={<WalletAssistant />} />
             <Route path="/wallet/assistant/:threadId" element={<WalletAssistant />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/contact-us" element={<ContactUs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
