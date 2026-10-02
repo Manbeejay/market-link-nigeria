@@ -33,15 +33,32 @@ const Subscribe = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('reference') || params.get('trxref')) {
-      setReturnedFromPayment(true);
-      const id = window.setInterval(refresh, 3000);
-      const stop = window.setTimeout(() => window.clearInterval(id), 30000);
-      return () => {
-        window.clearInterval(id);
-        window.clearTimeout(stop);
-      };
-    }
+    const reference = params.get('reference') || params.get('trxref');
+    if (!reference) return;
+    setReturnedFromPayment(true);
+    let cancelled = false;
+    const id = window.setInterval(refresh, 3000);
+    // Fallback: if the webhook hasn't activated us after ~15s, verify directly with Paystack.
+    const fallback = window.setTimeout(async () => {
+      const { data, error } = await supabase.functions.invoke('verify-subscription-payment', {
+        body: { reference },
+      });
+      if (cancelled) return;
+      window.clearInterval(id);
+      await refresh();
+      if (error || !data?.active) {
+        setReturnedFromPayment(false);
+        setError(
+          data?.error ??
+            "We couldn't confirm your payment yet. If you were charged, please refresh this page in a minute.",
+        );
+      }
+    }, 15000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+      window.clearTimeout(fallback);
+    };
   }, [refresh]);
 
   const startPayment = async () => {
