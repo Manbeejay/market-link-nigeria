@@ -39,7 +39,7 @@ const Hero = () => {
                 <div className="text-sm text-gray-600">Happy Buyers</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">50+</div>
+                <div className="text-2xl font-bold text-blue-600">36+</div>
                 <div className="text-sm text-gray-600">Nigerian States</div>
               </div>
             </div>
