@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Sparkles, Upload, X } from "lucide-react";
 import { NIGERIAN_STATES, PRODUCT_UNITS } from "@/lib/nigeria";
 import { PRODUCT_BUCKET } from "@/hooks/useProductImageUrl";
 import ProductImage from "@/components/ProductImage";
@@ -102,6 +102,63 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
 
   const set = (key: keyof typeof emptyForm, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  const [aiQuality, setAiQuality] = useState("");
+  const [aiDelivery, setAiDelivery] = useState("");
+  const [writing, setWriting] = useState(false);
+
+  const writeWithAi = async () => {
+    if (!form.title.trim()) {
+      toast({ title: "Add the product name first", variant: "destructive" });
+      return;
+    }
+    setWriting(true);
+    const previous = form.description;
+    try {
+      const { data } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/listing-writer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${data.session?.access_token ?? ""}`,
+        },
+        body: JSON.stringify({
+          crop: form.title,
+          category: categories.find((c) => c.id === form.category_id)?.name ?? "",
+          quantity: form.quantity_available,
+          unit: form.unit,
+          price: form.price_per_unit,
+          quality: aiQuality,
+          delivery: aiDelivery,
+          state: form.state,
+          lga: form.lga,
+          notes: previous,
+        }),
+      });
+      if (!res.ok || !res.body) {
+        const msg = await res.json().catch(() => null);
+        throw new Error(msg?.error ?? "The AI writer is unavailable right now.");
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        set("description", acc);
+      }
+      if (!acc.trim()) {
+        set("description", previous);
+        throw new Error("No description was produced. Please try again later.");
+      }
+    } catch (err: any) {
+      toast({ title: "Could not write description", description: err?.message, variant: "destructive" });
+    } finally {
+      setWriting(false);
+    }
+  };
 
   const removeExistingImage = async (image: { id: string; url: string }) => {
     const { error } = await supabase.from("product_images").delete().eq("id", image.id);
@@ -208,6 +265,46 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
             />
           </div>
 
+          <div className="space-y-3 rounded-md border border-dashed p-3">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Sparkles className="h-4 w-4 text-primary" /> Write my description with AI
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Fill in the name, price, quantity and location below, add quality and delivery
+              details here, then let AI write a clear listing for buyers. You can edit it after.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="ai-quality">Quality</Label>
+                <Textarea
+                  id="ai-quality"
+                  rows={2}
+                  value={aiQuality}
+                  onChange={(e) => setAiQuality(e.target.value)}
+                  placeholder="e.g. Grade A, sun-dried, no stones, harvested last week"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="ai-delivery">Delivery or pickup</Label>
+                <Textarea
+                  id="ai-delivery"
+                  rows={2}
+                  value={aiDelivery}
+                  onChange={(e) => setAiDelivery(e.target.value)}
+                  placeholder="e.g. Pickup at farm, delivery within Lagos for extra fee"
+                />
+              </div>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={writeWithAi} disabled={writing}>
+              {writing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              {writing ? "Writing..." : "Write description"}
+            </Button>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
@@ -215,7 +312,8 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
               placeholder="Quality, harvest date, packaging, delivery options..."
-              rows={3}
+              rows={writing || form.description.length > 200 ? 8 : 3}
+              disabled={writing}
             />
           </div>
 
