@@ -46,6 +46,12 @@ const UserMenu = () => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
+          <Link to="/subscription-payments">
+            <Receipt className="mr-2 h-4 w-4" />
+            <span>Subscription Payments</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/bank-account">
             <Landmark className="mr-2 h-4 w-4" />
             <span>Payout Bank Account</span>
