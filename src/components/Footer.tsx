@@ -40,7 +40,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Logo size="md" showText={true} className="text-green-400" />
+            <Logo size="md" showText={true} variant="light" className="text-green-400" />
             <p className="text-gray-400 leading-relaxed">
               Connecting Nigerian farmers with buyers for fresh, quality agricultural products and fair trade.
             </p>
