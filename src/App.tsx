@@ -14,6 +14,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Orders from "./pages/Orders";
 import BankAccount from "./pages/BankAccount";
 import Wallet from "./pages/Wallet";
+import SubscriptionPayments from "./pages/SubscriptionPayments";
 import WalletAssistant from "./pages/WalletAssistant";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/orders" element={<Orders />} />
             <Route path="/bank-account" element={<BankAccount />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/subscription-payments" element={<SubscriptionPayments />} />
             <Route path="/wallet/assistant" element={<WalletAssistant />} />
             <Route path="/wallet/assistant/:threadId" element={<WalletAssistant />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />

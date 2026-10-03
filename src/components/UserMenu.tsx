@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, Settings, Landmark, Wallet } from 'lucide-react';
+import { User, LogOut, Settings, Landmark, Wallet, Receipt } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -43,6 +43,12 @@ const UserMenu = () => {
           <Link to="/wallet">
             <Wallet className="mr-2 h-4 w-4" />
             <span>My Wallet</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/subscription-payments">
+            <Receipt className="mr-2 h-4 w-4" />
+            <span>Subscription Payments</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
