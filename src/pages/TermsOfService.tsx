@@ -37,7 +37,7 @@ const TermsOfService = () => {
 
         <h2 className="text-xl font-semibold mt-8 mb-2">Payments</h2>
         <p>
-          All payments are processed by Paystack. We don't store your card details. Commission rates and
+          Paystack processes all payments. We don't store your card details. Commission rates and
           membership fees may change; we'll post any change here before it takes effect.
         </p>
 
