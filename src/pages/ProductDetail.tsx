@@ -12,7 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, User } from "lucide-react";
+import { MapPin, MessageSquare, User } from "lucide-react";
+import ListingAssistant from "@/components/products/ListingAssistant";
 import { formatNaira } from "@/lib/nigeria";
 
 interface DetailProduct {
@@ -103,6 +104,34 @@ const ProductDetail = () => {
       });
       navigate("/orders");
     }
+  };
+
+  const [opening, setOpening] = useState(false);
+  const messageFarmer = async () => {
+    if (!product || !user) return;
+    setOpening(true);
+    const { data: existing } = await supabase
+      .from("inquiries")
+      .select("id")
+      .eq("product_id", product.id)
+      .eq("buyer_id", user.id)
+      .maybeSingle();
+    let inquiryId = existing?.id;
+    if (!inquiryId) {
+      const { data, error } = await supabase
+        .from("inquiries")
+        .insert({ product_id: product.id, buyer_id: user.id, farmer_id: product.farmer_id })
+        .select("id")
+        .single();
+      if (error || !data) {
+        setOpening(false);
+        toast({ title: "Could not contact farmer", description: error?.message, variant: "destructive" });
+        return;
+      }
+      inquiryId = data.id;
+    }
+    setOpening(false);
+    navigate(`/inquiries/${inquiryId}`);
   };
 
   const gate = authLoading || subLoading || isActive !== true;
@@ -202,6 +231,10 @@ const ProductDetail = () => {
                       <p className="text-sm text-gray-500">
                         You pay only after the farmer accepts your request.
                       </p>
+                      <Button variant="outline" className="w-full" onClick={messageFarmer} disabled={opening}>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        {opening ? "Opening..." : "Message farmer"}
+                      </Button>
                     </>
                   )}
                 </CardContent>
@@ -209,6 +242,7 @@ const ProductDetail = () => {
             </div>
           </div>
         )}
+        {product && !gate && !loading && !isOwnProduct && <ListingAssistant productId={product.id} />}
       </main>
       <Footer />
     </div>
