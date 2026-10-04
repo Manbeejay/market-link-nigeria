@@ -61,21 +61,27 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">For Farmers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Sell Your Products</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Farmer Resources</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Success Stories</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Training Programs</a></li>
+              <li><Link to="/auth?role=farmer" className="hover:text-white transition-colors">Sell Your Products</Link></li>
+              <li>
+                <a
+                  href="https://www.greendalefarms.com.ng"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  Training Programs
+                </a>
+              </li>
             </ul>
           </div>
-
+          
           {/* For Buyers */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">For Buyers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Browse Products</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Quality Guarantee</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Bulk Orders</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Delivery Options</a></li>
+              <li><Link to="/browse" className="hover:text-white transition-colors">Browse Products</Link></li>
+              <li><Link to="/terms-of-service#quality-guarantee" className="hover:text-white transition-colors">Quality Guarantee</Link></li>
+              <li><Link to="/terms-of-service#delivery-options" className="hover:text-white transition-colors">Delivery Options</Link></li>
             </ul>
           </div>
 
