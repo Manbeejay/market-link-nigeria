@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,23 +5,30 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useSubscription } from '@/hooks/useSubscription';
 
+type UserType = 'farmer' | 'buyer' | 'both';
+
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get('role');
+
+  const [isSignUp, setIsSignUp] = useState(Boolean(roleParam));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [userType, setUserType] = useState<UserType>(
+    roleParam === 'farmer' || roleParam === 'both' ? roleParam : 'buyer'
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { signUp, signIn, user } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
 
-  // Once signed in, send members to the marketplace and everyone else to checkout
   useEffect(() => {
     if (!user || subLoading) return;
     navigate(isActive ? '/' : '/subscribe');
@@ -40,17 +46,13 @@ const Auth = () => {
           setLoading(false);
           return;
         }
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, userType);
         if (error) {
           if (error.message.includes('already registered')) {
             setError('This email is already registered. Please sign in instead.');
           } else {
             setError(error.message);
           }
-        } else {
-          setError('');
-          // Optionally show success message
-          console.log('Account created successfully!');
         }
       } else {
         const { error } = await signIn(email, password);
@@ -78,10 +80,9 @@ const Auth = () => {
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            {isSignUp 
-              ? 'Join MarketLink Nigeria to connect with farmers and buyers' 
-              : 'Welcome back! Please sign in to continue'
-            }
+            {isSignUp
+              ? 'Join MarketLink Nigeria to connect with farmers and buyers'
+              : 'Welcome back! Please sign in to continue'}
           </p>
         </div>
 
@@ -89,28 +90,47 @@ const Auth = () => {
           <CardHeader>
             <CardTitle>{isSignUp ? 'Sign Up' : 'Sign In'}</CardTitle>
             <CardDescription>
-              {isSignUp 
-                ? 'Enter your details to create your account' 
-                : 'Enter your credentials to access your account'
-              }
+              {isSignUp ? 'Enter your details to create your account' : 'Enter your credentials to access your account'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {isSignUp && (
-                <div>
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={isSignUp}
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                <>
+                  <div>
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={isSignUp}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>I want to join as</Label>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      {(['farmer', 'buyer', 'both'] as const).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setUserType(type)}
+                          className={`py-2 px-2 rounded-md border text-sm font-medium capitalize transition-colors ${
+                            userType === type
+                              ? 'border-green-600 bg-green-50 text-green-700'
+                              : 'border-gray-300 text-gray-600 hover:border-green-300'
+                          }`}
+                        >
+                          {type === 'both' ? 'Both' : type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
-              
+
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -142,12 +162,8 @@ const Auth = () => {
                 </Alert>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full bg-green-600 hover:bg-green-700" 
-                disabled={loading}
-              >
-                {loading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
+                {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
               </Button>
             </form>
 
@@ -163,10 +179,7 @@ const Auth = () => {
                 }}
                 className="text-green-600 hover:text-green-700"
               >
-                {isSignUp 
-                  ? 'Already have an account? Sign in' 
-                  : "Don't have an account? Sign up"
-                }
+                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
               </Button>
             </div>
           </CardContent>
