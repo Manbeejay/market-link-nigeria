@@ -1,0 +1,1 @@
+REVOKE ALL ON public.listing_assistant_chats, public.inquiries, public.inquiry_messages FROM anon;

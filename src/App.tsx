@@ -16,6 +16,7 @@ import BankAccount from "./pages/BankAccount";
 import Wallet from "./pages/Wallet";
 import SubscriptionPayments from "./pages/SubscriptionPayments";
 import WalletAssistant from "./pages/WalletAssistant";
+import Inquiries from "./pages/Inquiries";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -43,6 +44,8 @@ const App = () => (
             <Route path="/subscription-payments" element={<SubscriptionPayments />} />
             <Route path="/wallet/assistant" element={<WalletAssistant />} />
             <Route path="/wallet/assistant/:threadId" element={<WalletAssistant />} />
+            <Route path="/inquiries" element={<Inquiries />} />
+            <Route path="/inquiries/:inquiryId" element={<Inquiries />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/contact-us" element={<ContactUs />} />
