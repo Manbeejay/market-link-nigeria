@@ -72,6 +72,9 @@ const Footer = () => {
                   Training Programs
                 </a>
               </li>
+              <li>
+              <Link to="/faq" className="hover:text-white transition-colors">FAQs</Link>
+              </li>
             </ul>
           </div>
           
