@@ -23,6 +23,7 @@ import TermsOfService from "./pages/TermsOfService";
 import ContactUs from "./pages/ContactUs";
 import Settings from "./pages/Settings";
 import ScrollToTop from "./components/ScrollToTop";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/scroll-to-top" element={<ScrollToTop />} />
+            <Route path="/faq" element={<FAQ />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
