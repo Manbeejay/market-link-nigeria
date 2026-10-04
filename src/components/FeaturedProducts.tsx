@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FeaturedProducts = () => {
   const products = [
@@ -169,9 +170,11 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="text-center">
-          <Button size="lg" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+          <Link to="/browse">
+            <Button size="lg" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
             View All Products
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
