@@ -7,7 +7,7 @@ const TermsOfService = () => {
       <Header />
       <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full prose prose-gray">
         <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
-        <p className="text-gray-500 text-sm mb-8">Last updated: October 2, 2026</p>
+        <p className="text-gray-500 text-sm mb-8">Last updated: 2nd October, 2026</p>
 
         <p>
           These terms govern your use of MarketLink Nigeria, a product built for Greendale Farms MCS Ltd.
@@ -32,13 +32,30 @@ const TermsOfService = () => {
         <ul className="list-disc pl-6 space-y-1">
           <li>Give accurate information about yourself and, if you're a farmer, about what you're selling.</li>
           <li>Honor orders you accept, and pay for orders you place.</li>
-          <li>Don't use the platform for anything illegal or to defraud another user.</li>
+          <li>Do not use the platform for anything illegal or to defraud another user.</li>
         </ul>
 
         <h2 className="text-xl font-semibold mt-8 mb-2">Payments</h2>
         <p>
-          Paystack processes all payments. We don't store your card details. Commission rates and
+          Paystack processes all payments. We do not store your card details. Commission rates and
           membership fees may change; we'll post any change here before it takes effect.
+        </p>
+
+        <h2 id="quality-guarantee" className="text-xl font-semibold mt-8 mb-2">Quality and disputes</h2>
+        <p>
+          MarketLink Nigeria does not inspect produce or guarantee its quality before a sale. What we provide
+          is a clear process around every order: a farmer accepts an order before payment is taken, marks it
+          delivered once the produce is handed over, and the buyer confirms receipt to close it out. If
+          something does not match what was described, or doesn't arrive, raise it with the farmer directly
+          through the listing's chat first, and contact us if that doesn't resolve it.
+        </p>
+
+        <h2 id="delivery-options" className="text-xl font-semibold mt-8 mb-2">Delivery</h2>
+        <p>
+          MarketLink Nigeria does not arrange delivery itself. Each listing states whether the farmer offers
+          delivery or pickup only, and the specifics, cost, timing, and how far they'll travel are worked out
+          directly between buyer and farmer, usually through the chat on the listing. Confirm delivery details
+          with the farmer before you pay.
         </p>
 
         <h2 className="text-xl font-semibold mt-8 mb-2">Account suspension</h2>
