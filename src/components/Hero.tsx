@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 
@@ -20,14 +21,16 @@ const Hero = () => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <Link to="/auth?role=farmer">
               <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg">
-                Join as Farmer
+              Join as Farmer
               </Button>
-              <Button size="lg" variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50 px-8 py-4 text-lg">
-                Find Products
-              </Button>
-            </div>
+            </Link>
+            <Link to="/browse">
+             <Button size="lg" variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50 px-8 py-4 text-lg">
+             Find Products
+             </Button>
+            </Link>
 
             <div className="grid grid-cols-3 gap-6 pt-8">
               <div className="text-center">
