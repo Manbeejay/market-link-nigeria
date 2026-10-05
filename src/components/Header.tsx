@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import UserMenu from "./UserMenu";
+import NotificationBell from "./NotificationBell";
 
 const Header = () => {
   const { user } = useAuth();
@@ -52,7 +53,10 @@ const Header = () => {
             </Link>
             
             {user ? (
-              <UserMenu />
+              <>
+                <NotificationBell />
+                <UserMenu />
+              </>
             ) : (
               <>
                 <Link to="/auth">
