@@ -89,9 +89,6 @@ const Auth = () => {
           </p>
         </div>
 
-                  </p>
-        </div>
-
         {confirmationSent ? (
           <Card>
             <CardContent className="pt-6 text-center space-y-2">
@@ -201,12 +198,7 @@ const Auth = () => {
             </div>
           </CardContent>
         </Card>
-              </CardContent>
-        </Card>
         )}
-      </div>
-    </div>
-  );
       </div>
     </div>
   );
