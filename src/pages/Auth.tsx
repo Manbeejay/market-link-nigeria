@@ -24,6 +24,7 @@ const Auth = () => {
   );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const { signUp, signIn, user } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
@@ -53,6 +54,8 @@ const Auth = () => {
           } else {
             setError(error.message);
           }
+        } else {
+          setConfirmationSent(true);
         }
       } else {
         const { error } = await signIn(email, password);
@@ -86,6 +89,20 @@ const Auth = () => {
           </p>
         </div>
 
+                  </p>
+        </div>
+
+        {confirmationSent ? (
+          <Card>
+            <CardContent className="pt-6 text-center space-y-2">
+              <p className="font-medium text-gray-900">Check your email</p>
+              <p className="text-sm text-gray-600">
+                We've sent a confirmation link to <span className="font-medium">{email}</span>.
+                Click it to activate your account, then come back and sign in.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
         <Card>
           <CardHeader>
             <CardTitle>{isSignUp ? 'Sign Up' : 'Sign In'}</CardTitle>
@@ -184,6 +201,12 @@ const Auth = () => {
             </div>
           </CardContent>
         </Card>
+              </CardContent>
+        </Card>
+        )}
+      </div>
+    </div>
+  );
       </div>
     </div>
   );
