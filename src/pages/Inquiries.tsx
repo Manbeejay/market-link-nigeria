@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, MessageSquare, PenLine, Send } from "lucide-react";
 
 interface InquiryRow {
   id: string;
@@ -27,7 +28,7 @@ const Thread = ({ inquiry, onSent }: { inquiry: InquiryRow; onSent: () => void }
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const bottom = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     supabase
@@ -73,6 +74,47 @@ const Thread = ({ inquiry, onSent }: { inquiry: InquiryRow; onSent: () => void }
     inputRef.current?.focus();
   };
 
+  const [notes, setNotes] = useState("");
+  const [drafting, setDrafting] = useState(false);
+  const draft = async () => {
+    setDrafting(true);
+    const previous = text;
+    try {
+      const { data } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/inquiry-reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${data.session?.access_token ?? ""}`,
+        },
+        body: JSON.stringify({ inquiryId: inquiry.id, notes }),
+      });
+      if (!res.ok || !res.body) {
+        const msg = await res.json().catch(() => null);
+        throw new Error(msg?.error ?? "The reply helper is unavailable right now.");
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        setText(acc);
+      }
+      if (!acc.trim()) {
+        setText(previous);
+        throw new Error("No reply was produced. Please try again later.");
+      }
+    } catch (err: any) {
+      toast({ title: "Could not draft a reply", description: err?.message, variant: "destructive" });
+    } finally {
+      setDrafting(false);
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  };
+
   const isBuyer = inquiry.buyer_id === user?.id;
   const other = (isBuyer ? inquiry.farmer?.full_name : inquiry.buyer?.full_name) ?? (isBuyer ? "Farmer" : "Buyer");
 
@@ -105,9 +147,39 @@ const Thread = ({ inquiry, onSent }: { inquiry: InquiryRow; onSent: () => void }
         )}
         <div ref={bottom} />
       </div>
-      <form className="flex gap-2 border-t p-3" onSubmit={(e) => { e.preventDefault(); send(); }}>
-        <Input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message..." maxLength={1000} />
-        <Button type="submit" disabled={sending || !text.trim()} aria-label="Send"><Send className="h-4 w-4" /></Button>
+      {!isBuyer && (
+        <div className="space-y-2 border-t bg-muted/20 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <PenLine className="h-4 w-4 text-primary" /> Draft a reply with AI
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Optional notes, e.g. can deliver to Ikeja for ₦3,000"
+              maxLength={1000}
+            />
+            <Button type="button" variant="outline" onClick={draft} disabled={drafting}>
+              {drafting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PenLine className="mr-2 h-4 w-4" />}
+              {drafting ? "Drafting..." : "Draft reply"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Uses your listing details and this conversation. Check and edit before sending.</p>
+        </div>
+      )}
+      <form className="flex items-end gap-2 border-t p-3" onSubmit={(e) => { e.preventDefault(); send(); }}>
+        <Textarea
+          ref={inputRef}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          placeholder="Type a message..."
+          maxLength={1000}
+          rows={text.length > 80 ? 4 : 1}
+          className="min-h-10 resize-none"
+          disabled={drafting}
+        />
+        <Button type="submit" disabled={sending || drafting || !text.trim()} aria-label="Send"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
   );
