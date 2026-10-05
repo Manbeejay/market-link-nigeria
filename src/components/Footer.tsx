@@ -108,13 +108,14 @@ const Footer = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-400"
                 />
-                <Button
+                  <Button
                   className="w-full bg-green-600 hover:bg-green-700"
                   onClick={handleSubscribe}
                   disabled={submitting}
                 >
                   {submitting ? "Subscribing..." : "Subscribe"}
                 </Button>
+                <p className="text-gray-500 text-xs">You can unsubscribe anytime.</p>
               </div>
             )}
           </div>
