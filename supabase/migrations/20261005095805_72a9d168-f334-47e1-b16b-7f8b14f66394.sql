@@ -1,0 +1,1 @@
+REVOKE ALL ON public.notifications FROM anon;
