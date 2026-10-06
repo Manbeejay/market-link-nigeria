@@ -1,0 +1,5 @@
+- [ ] Add participant-safe AI summaries of buyer intent in inquiries.
+- [ ] Add inquiry status tracking with farmer-only status changes.
+- [ ] Recommend matching produce in Browse using available buyer signals.
+- [ ] Add Supabase password reset request and password update flow.
+- [ ] Validate build and available preview flows; document auth test limitations.
