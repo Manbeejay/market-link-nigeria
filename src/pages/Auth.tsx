@@ -25,8 +25,10 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, requestPasswordReset, user } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
 
@@ -41,7 +43,11 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        const { error } = await requestPasswordReset(email);
+        if (error) setError(error.message);
+        else setResetSent(true);
+      } else if (isSignUp) {
         if (!fullName.trim()) {
           setError('Full name is required');
           setLoading(false);
@@ -80,31 +86,32 @@ const Auth = () => {
         <div className="text-center">
           <Logo size="lg" showText={true} className="justify-center mb-6" />
           <h2 className="text-3xl font-bold text-gray-900">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+            {isSignUp ? 'Create your account' : isForgotPassword ? 'Reset your password' : 'Sign in to your account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             {isSignUp
               ? 'Join MarketLink Nigeria to connect with farmers and buyers'
-              : 'Welcome back! Please sign in to continue'}
+              : isForgotPassword ? 'Enter your email and we’ll send a password reset link.' : 'Welcome back! Please sign in to continue'}
           </p>
         </div>
 
-        {confirmationSent ? (
+        {confirmationSent || resetSent ? (
           <Card>
             <CardContent className="pt-6 text-center space-y-2">
               <p className="font-medium text-gray-900">Check your email</p>
               <p className="text-sm text-gray-600">
-                We've sent a confirmation link to <span className="font-medium">{email}</span>.
-                Click it to activate your account, then come back and sign in.
+                {confirmationSent ? "We've sent a confirmation link" : "If an account exists for this email, we've sent a password reset link"} to <span className="font-medium">{email}</span>.
+                {confirmationSent ? ' Click it to activate your account, then come back and sign in.' : ' Open it to choose a new password.'}
               </p>
+              {resetSent && <Button variant="link" onClick={() => { setResetSent(false); setIsForgotPassword(false); }}>Back to sign in</Button>}
             </CardContent>
           </Card>
         ) : (
         <Card>
           <CardHeader>
-            <CardTitle>{isSignUp ? 'Sign Up' : 'Sign In'}</CardTitle>
+            <CardTitle>{isSignUp ? 'Sign Up' : isForgotPassword ? 'Password recovery' : 'Sign In'}</CardTitle>
             <CardDescription>
-              {isSignUp ? 'Enter your details to create your account' : 'Enter your credentials to access your account'}
+              {isSignUp ? 'Enter your details to create your account' : isForgotPassword ? 'We’ll email you a secure link to choose a new password.' : 'Enter your credentials to access your account'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -157,7 +164,7 @@ const Auth = () => {
                 />
               </div>
 
-              <div>
+              {!isForgotPassword && <div>
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
@@ -168,7 +175,15 @@ const Auth = () => {
                   placeholder="Enter your password"
                   minLength={6}
                 />
-              </div>
+              </div>}
+
+              {!isSignUp && !isForgotPassword && (
+                <div className="text-right">
+                  <Button type="button" variant="link" className="h-auto px-0 text-green-700" onClick={() => { setIsForgotPassword(true); setError(''); }}>
+                    Forgot password?
+                  </Button>
+                </div>
+              )}
 
               {error && (
                 <Alert variant="destructive">
@@ -177,11 +192,11 @@ const Auth = () => {
               )}
 
               <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
-                {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
+                {loading ? 'Please wait...' : isSignUp ? 'Create Account' : isForgotPassword ? 'Send reset link' : 'Sign In'}
               </Button>
             </form>
 
-            <div className="mt-4 text-center">
+            {!isForgotPassword && <div className="mt-4 text-center">
               <Button
                 variant="link"
                 onClick={() => {
@@ -195,7 +210,10 @@ const Auth = () => {
               >
                 {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
               </Button>
-            </div>
+            </div>}
+            {isForgotPassword && <div className="mt-4 text-center">
+              <Button variant="link" onClick={() => { setIsForgotPassword(false); setError(''); }} className="text-green-600 hover:text-green-700">Back to sign in</Button>
+            </div>}
           </CardContent>
         </Card>
         )}

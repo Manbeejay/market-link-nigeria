@@ -24,6 +24,7 @@ import ContactUs from "./pages/ContactUs";
 import Settings from "./pages/Settings";
 import ScrollToTop from "./components/ScrollToTop";
 import FAQ from "./pages/FAQ";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/subscribe" element={<Subscribe />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/my-listings" element={<MyListings />} />
