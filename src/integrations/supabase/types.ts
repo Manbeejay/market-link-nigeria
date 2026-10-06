@@ -107,6 +107,7 @@ export type Database = {
           farmer_id: string
           id: string
           product_id: string
+          status: string
           updated_at: string
         }
         Insert: {
@@ -115,6 +116,7 @@ export type Database = {
           farmer_id: string
           id?: string
           product_id: string
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -123,6 +125,7 @@ export type Database = {
           farmer_id?: string
           id?: string
           product_id?: string
+          status?: string
           updated_at?: string
         }
         Relationships: [
