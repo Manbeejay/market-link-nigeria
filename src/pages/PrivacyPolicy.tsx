@@ -50,10 +50,6 @@ const PrivacyPolicy = () => {
           We'll update this page if how we handle your data changes, and update the date at the top.
         </p>
 
-        <p className="text-sm text-gray-500 mt-10 border-t pt-4">
-          This is a starting template, not a substitute for legal advice. Have it reviewed by a lawyer
-          familiar with the Nigeria Data Protection Act before you rely on it in production.
-        </p>
       </main>
       <Footer />
     </div>
