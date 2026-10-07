@@ -73,10 +73,6 @@ const TermsOfService = () => {
         <h2 className="text-xl font-semibold mt-8 mb-2">Governing law</h2>
         <p>These terms are governed by the laws of the Federal Republic of Nigeria.</p>
 
-        <p className="text-sm text-gray-500 mt-10 border-t pt-4">
-          This is a starting template, not a substitute for legal advice. Have it reviewed by a lawyer
-          before you rely on it in production, particularly the commission, liability, and dispute terms.
-        </p>
       </main>
       <Footer />
     </div>
