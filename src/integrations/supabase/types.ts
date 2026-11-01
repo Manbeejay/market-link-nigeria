@@ -106,6 +106,8 @@ export type Database = {
           created_at: string
           farmer_id: string
           id: string
+          inquiry_summary: string | null
+          inquiry_summary_msg_count: number | null
           product_id: string
           status: string
           updated_at: string
@@ -115,6 +117,8 @@ export type Database = {
           created_at?: string
           farmer_id: string
           id?: string
+          inquiry_summary?: string | null
+          inquiry_summary_msg_count?: number | null
           product_id: string
           status?: string
           updated_at?: string
@@ -124,6 +128,8 @@ export type Database = {
           created_at?: string
           farmer_id?: string
           id?: string
+          inquiry_summary?: string | null
+          inquiry_summary_msg_count?: number | null
           product_id?: string
           status?: string
           updated_at?: string
