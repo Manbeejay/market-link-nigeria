@@ -1,11 +1,19 @@
 import { createOpenAI } from "npm:@ai-sdk/openai@4";
-import { streamText, type ModelMessage } from "npm:ai@7";
+import { Output, streamText, type ModelMessage } from "npm:ai@7";
 
 import { createLovableAiGatewayRunIdFetch, getLovableAiGatewayRunId } from "./run-id.ts";
 
 export function createResponsesCall(
   request: Request,
-  config: { baseURL: string; apiKey: string; model: string; system?: string },
+  config: {
+    baseURL: string;
+    apiKey: string;
+    model: string;
+    system?: string;
+    // Optional structured output: the AI SDK converts this schema to a strict
+    // json_schema `text.format` on /v1/responses. Schema must be strict-compatible.
+    output?: ReturnType<typeof Output.object>;
+  },
   messages: ModelMessage[],
 ) {
   const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
@@ -20,6 +28,7 @@ export function createResponsesCall(
     system: config.system,
     messages,
     abortSignal: request.signal,
+    ...(config.output ? { output: config.output } : {}),
     providerOptions: {
       openai: {
         store: false,
