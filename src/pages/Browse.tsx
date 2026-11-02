@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import MatchedProduce from "@/components/products/MatchedProduce";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import Header from "@/components/Header";
@@ -199,6 +200,9 @@ const Browse = () => {
             </aside>
 
             <section>
+              {!loading && !search.trim() && category === ANY && state === ANY && minPrice === "" && maxPrice === "" && (
+                <MatchedProduce products={products} categories={categories} />
+              )}
               {loading ? (
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                   {[0, 1, 2, 3, 4, 5].map((i) => (
