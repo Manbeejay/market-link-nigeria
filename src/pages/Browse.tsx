@@ -124,6 +124,10 @@ const Browse = () => {
           Fresh produce listed directly by verified farmers across Nigeria.
         </p>
 
+        {!gate && (
+          <NaturalSearch response={finderResponse} onResponseChange={setFinderResponse} />
+        )}
+
         {gate ? (
           <Skeleton className="h-64 w-full rounded-lg" />
         ) : (
@@ -202,10 +206,17 @@ const Browse = () => {
             </aside>
 
             <section>
-              {!loading && !search.trim() && category === ANY && state === ANY && minPrice === "" && maxPrice === "" && (
-                <MatchedProduce products={products} categories={categories} />
-              )}
-              {loading ? (
+              {finderResponse ? (
+                <FinderResults
+                  response={finderResponse}
+                  onClear={() => setFinderResponse(null)}
+                />
+              ) : (
+                <>
+                  {!loading && !search.trim() && category === ANY && state === ANY && minPrice === "" && maxPrice === "" && (
+                    <MatchedProduce products={products} categories={categories} />
+                  )}
+                  {loading ? (
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                   {[0, 1, 2, 3, 4, 5].map((i) => (
                     <Skeleton key={i} className="h-72 w-full rounded-lg" />
