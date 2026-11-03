@@ -279,6 +279,8 @@ const Browse = () => {
                   </div>
                 </>
               )}
+                </>
+              )}
             </section>
           </div>
         )}
