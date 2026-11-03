@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import NaturalSearch, { FinderResults, type FinderResponse } from "@/components/products/NaturalSearch";
 import MatchedProduce from "@/components/products/MatchedProduce";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -54,6 +55,7 @@ const Browse = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [search, setSearch] = useState("");
+  const [finderResponse, setFinderResponse] = useState<FinderResponse | null>(null);
 
   useEffect(() => {
     if (authLoading || subLoading) return;
