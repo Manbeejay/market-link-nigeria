@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import NaturalSearch, { FinderResults, type FinderResponse } from "@/components/products/NaturalSearch";
 import MatchedProduce from "@/components/products/MatchedProduce";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -54,6 +55,7 @@ const Browse = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [search, setSearch] = useState("");
+  const [finderResponse, setFinderResponse] = useState<FinderResponse | null>(null);
 
   useEffect(() => {
     if (authLoading || subLoading) return;
@@ -121,6 +123,10 @@ const Browse = () => {
         <p className="text-gray-600 mt-1 mb-8">
           Fresh produce listed directly by verified farmers across Nigeria.
         </p>
+
+        {!gate && (
+          <NaturalSearch response={finderResponse} onResponseChange={setFinderResponse} />
+        )}
 
         {gate ? (
           <Skeleton className="h-64 w-full rounded-lg" />
@@ -200,10 +206,17 @@ const Browse = () => {
             </aside>
 
             <section>
-              {!loading && !search.trim() && category === ANY && state === ANY && minPrice === "" && maxPrice === "" && (
-                <MatchedProduce products={products} categories={categories} />
-              )}
-              {loading ? (
+              {finderResponse ? (
+                <FinderResults
+                  response={finderResponse}
+                  onClear={() => setFinderResponse(null)}
+                />
+              ) : (
+                <>
+                  {!loading && !search.trim() && category === ANY && state === ANY && minPrice === "" && maxPrice === "" && (
+                    <MatchedProduce products={products} categories={categories} />
+                  )}
+                  {loading ? (
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                   {[0, 1, 2, 3, 4, 5].map((i) => (
                     <Skeleton key={i} className="h-72 w-full rounded-lg" />
@@ -264,6 +277,8 @@ const Browse = () => {
                       );
                     })}
                   </div>
+                </>
+              )}
                 </>
               )}
             </section>

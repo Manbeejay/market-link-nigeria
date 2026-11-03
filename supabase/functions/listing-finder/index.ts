@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { NoObjectGeneratedError } from "npm:ai@7";
+import { NoObjectGeneratedError, Output } from "npm:ai@7";
 import { z } from "npm:zod@3";
 
 import { createResponsesCall } from "../_shared/responses.ts";
@@ -113,9 +113,15 @@ STATES: ${NIGERIAN_STATES}`;
   const matchedCategory = criteria.category
     ? categoryNames.find((n) => n.toLowerCase() === criteria.category!.trim().toLowerCase())
     : null;
-  const categoryId = matchedCategory
-    ? (categories ?? []).find((c) => c.name === matchedCategory)?.name && (await supabase.from("categories").select("id, name").eq("name", matchedCategory).maybeSingle()).data?.id
-    : null;
+  let categoryId: string | null = null;
+  if (matchedCategory) {
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("name", matchedCategory)
+      .maybeSingle();
+    categoryId = cat?.id ?? null;
+  }
 
   let productQuery = supabase
     .from("products")

@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import ProductImage from "@/components/ProductImage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { formatNaira } from "@/lib/nigeria";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FinderProduct {
   id: string;
@@ -39,16 +38,20 @@ const EXAMPLES = [
   "Catfish, table size, delivered to Abuja",
 ];
 
-const NaturalSearch = ({ onActiveChange }: { onActiveChange: (active: boolean) => void }) => {
-  const { user } = useAuth();
+const NaturalSearch = ({
+  response,
+  onResponseChange,
+}: {
+  response: FinderResponse | null;
+  onResponseChange: (response: FinderResponse | null) => void;
+}) => {
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
-  const [response, setResponse] = useState<FinderResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const find = async () => {
     const text = query.trim();
-    if (!text || !user) return;
+    if (!text) return;
     setSearching(true);
     setError(null);
     try {
@@ -64,8 +67,7 @@ const NaturalSearch = ({ onActiveChange }: { onActiveChange: (active: boolean) =
       });
       const payload = await res.json().catch(() => null);
       if (!res.ok) throw new Error(payload?.error ?? "The produce finder is unavailable right now.");
-      setResponse(payload as FinderResponse);
-      onActiveChange(true);
+      onResponseChange(payload as FinderResponse);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -74,9 +76,8 @@ const NaturalSearch = ({ onActiveChange }: { onActiveChange: (active: boolean) =
   };
 
   const clear = () => {
-    setResponse(null);
+    onResponseChange(null);
     setError(null);
-    onActiveChange(false);
   };
 
   return (
