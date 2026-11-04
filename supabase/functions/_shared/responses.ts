@@ -38,7 +38,7 @@ export function createResponsesCall(
       },
     },
   });
-  return { result, runIdIdFetch: undefined, runIdFetch } as { result: typeof result; runIdFetch: typeof runIdFetch };
+  return { result, runIdFetch };
 }
 
 /**
