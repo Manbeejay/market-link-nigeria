@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { createResponsesCall } from "../_shared/responses.ts";
+import { createResponsesCall, textStreamResponse } from "../_shared/responses.ts";
 import { withLovableAiGatewayRunIdHeader } from "../_shared/run-id.ts";
 
 const corsHeaders = {
@@ -94,10 +94,14 @@ ${notes || "(none)"}`;
 
   const { result, runIdFetch } = createResponsesCall(
     req,
-    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system },
+    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system, maxOutputTokens: 1000 },
     [{ role: "user", content: `Conversation so far:\n${transcript}\n\nDraft the farmer's next reply.` }],
   );
 
-  const response = result.toTextStreamResponse({ headers: corsHeaders });
+  const response = textStreamResponse(
+    result,
+    "The reply draft couldn't be generated just now. Please tap \"Draft reply\" again.",
+    corsHeaders,
+  );
   return withLovableAiGatewayRunIdHeader(response, runIdFetch, corsHeaders);
 });

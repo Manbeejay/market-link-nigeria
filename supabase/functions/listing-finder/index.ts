@@ -71,7 +71,7 @@ STATES: ${NIGERIAN_STATES}`;
 
   const { result, runIdFetch } = createResponsesCall(
     req,
-    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system, output: Output.object({ schema: FinderSchema }) },
+    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system, output: Output.object({ schema: FinderSchema }), maxOutputTokens: 1200 },
     [{ role: "user", content: `Buyer's request: ${query}\n\nExtract the search filters.` }],
   );
 
