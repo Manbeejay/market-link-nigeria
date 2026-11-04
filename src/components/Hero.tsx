@@ -34,12 +34,12 @@ const Hero = () => {
 
             <div className="grid grid-cols-3 gap-6 pt-8">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">500+</div>
-                <div className="text-sm text-gray-600">Active Farmers</div>
+                <div className="text-2xl font-bold text-green-600">Direct</div>
+                <div className="text-sm text-gray-600">Farmer to Buyer</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-500">1,200+</div>
-                <div className="text-sm text-gray-600">Happy Buyers</div>
+                <div className="text-2xl font-bold text-orange-500">Secure</div>
+                <div className="text-sm text-gray-600">Paystack Payments</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">36+</div>
