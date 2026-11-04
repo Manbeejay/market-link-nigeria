@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { convertToModelMessages, type UIMessage } from "npm:ai@7";
-import { createResponsesCall } from "../_shared/responses.ts";
+import { createResponsesCall, uiMessageStreamResponseWithFallback } from "../_shared/responses.ts";
 import { withLovableAiGatewayRunIdHeader } from "../_shared/run-id.ts";
 
 const corsHeaders = {
@@ -110,7 +110,7 @@ ${JSON.stringify(orderRows)}`;
 
   const { result, runIdFetch } = createResponsesCall(
     req,
-    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system },
+    { baseURL: "https://ai.gateway.lovable.dev", apiKey, model: "openai/gpt-6-astra", system, maxOutputTokens: 2000 },
     await convertToModelMessages(messages),
   );
 
@@ -141,5 +141,9 @@ ${JSON.stringify(orderRows)}`;
     },
   });
 
-  return withLovableAiGatewayRunIdHeader(response, runIdFetch, corsHeaders);
+  return withLovableAiGatewayRunIdHeader(
+    uiMessageStreamResponseWithFallback(response, "The assistant didn't return an answer just now. Please try again."),
+    runIdFetch,
+    corsHeaders,
+  );
 });
