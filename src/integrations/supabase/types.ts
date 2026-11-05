@@ -736,6 +736,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_featured_products: {
+        Args: never
+        Returns: {
+          category_name: string
+          id: string
+          price_per_unit: number
+          quantity_available: number
+          state: string
+          title: string
+          unit: string
+        }[]
+      }
       has_active_subscription: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
