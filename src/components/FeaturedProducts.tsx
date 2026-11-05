@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, Package, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { formatNaira } from "@/lib/nigeria";
 
@@ -15,7 +15,27 @@ interface FeaturedProduct {
   price_per_unit: number;
   quantity_available: number;
   state: string | null;
+  delivery_option?: string | null;
 }
+
+const CATEGORY_ICONS: Record<string, string> = {
+  Grains: "🌾",
+  Tubers: "🍠",
+  Vegetables: "🍅",
+  Fruits: "🍌",
+  Livestock: "🐄",
+  Poultry: "🐔",
+  "Fish & Seafood": "🐟",
+  "Cash Crops": "🌴",
+  Legumes: "🫘",
+  Others: "🧺",
+};
+
+const DELIVERY_LABELS: Record<string, string> = {
+  delivery: "Delivery available",
+  both: "Delivery or pickup",
+  pickup: "Pickup only",
+};
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<FeaturedProduct[]>([]);
@@ -42,29 +62,52 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {products.map((product) => (
-            <Link key={product.id} to={`/product/${product.id}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{product.title}</h3>
-                    {product.category_name && <Badge variant="secondary">{product.category_name}</Badge>}
-                  </div>
-                  <p className="text-xl font-bold text-green-600">
-                    {formatNaira(Number(product.price_per_unit))} / {product.unit}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {Number(product.quantity_available)} {product.unit} available
-                  </p>
-                  {product.state && (
-                    <p className="flex items-center gap-1 text-sm text-gray-500">
-                      <MapPin className="h-4 w-4" /> {product.state}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {products.map((product) => {
+            const icon = (product.category_name && CATEGORY_ICONS[product.category_name]) || "🌱";
+            const deliveryLabel = product.delivery_option ? DELIVERY_LABELS[product.delivery_option] : null;
+            return (
+              <Link key={product.id} to={`/product/${product.id}`}>
+                <Card className="h-full hover:shadow-lg transition-shadow duration-300 border-2 border-gray-100 hover:border-green-200">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="text-4xl mb-2">{icon}</div>
+                      {product.category_name && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          {product.category_name}
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg font-bold text-gray-900">{product.title}</CardTitle>
+                    <div className="text-2xl font-bold text-green-600">
+                      {formatNaira(Number(product.price_per_unit))} / {product.unit}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      {Number(product.quantity_available)} {product.unit} available
+                    </div>
+                    {product.state && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {product.state}
+                      </div>
+                    )}
+                    {deliveryLabel && (
+                      <div
+                        className={`flex items-center gap-2 ${
+                          product.delivery_option === "pickup" ? "text-gray-600" : "text-green-700"
+                        }`}
+                      >
+                        <Truck className="h-4 w-4" />
+                        {deliveryLabel}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
 
         <div className="text-center">
