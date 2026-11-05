@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Sparkles, Upload, X } from "lucide-react";
+import { Loader2, Sparkles, Truck, Upload, X } from "lucide-react";
 import { NIGERIAN_STATES, PRODUCT_UNITS } from "@/lib/nigeria";
 import { PRODUCT_BUCKET } from "@/hooks/useProductImageUrl";
 import ProductImage from "@/components/ProductImage";
@@ -36,6 +36,7 @@ export interface ProductRow {
   quantity_available: number;
   state: string | null;
   lga: string | null;
+  delivery_option: string | null;
   status: string;
   product_images?: { id: string; url: string; position: number }[];
 }
@@ -62,7 +63,14 @@ const emptyForm = {
   quantity_available: "",
   state: "",
   lga: "",
+  delivery_option: "",
   status: "available",
+};
+
+const DELIVERY_LABELS: Record<string, string> = {
+  delivery: "Delivery available",
+  pickup: "Pickup only",
+  both: "Delivery or pickup",
 };
 
 const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }: Props) => {
@@ -86,6 +94,7 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
         quantity_available: String(product.quantity_available ?? ""),
         state: product.state ?? "",
         lga: product.lga ?? "",
+        delivery_option: product.delivery_option ?? "",
         status: product.status ?? "available",
       });
       setExistingImages(
@@ -130,7 +139,7 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
           unit: form.unit,
           price: form.price_per_unit,
           quality: aiQuality,
-          delivery: aiDelivery,
+          delivery: form.delivery_option ? DELIVERY_LABELS[form.delivery_option] : aiDelivery,
           state: form.state,
           lga: form.lga,
           notes: previous,
@@ -207,6 +216,7 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
         quantity_available: Number(form.quantity_available) || 0,
         state: form.state || null,
         lga: form.lga.trim() || null,
+        delivery_option: form.delivery_option || null,
         status: form.status,
       };
 
@@ -401,6 +411,28 @@ const ProductFormDialog = ({ open, onOpenChange, product, categories, onSaved }:
                 placeholder="e.g. Ikorodu"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="delivery-option">
+              <span className="inline-flex items-center gap-2">
+                <Truck className="h-4 w-4" /> Delivery
+              </span>
+            </Label>
+            <Select
+              value={form.delivery_option || "unspecified"}
+              onValueChange={(value) => set("delivery_option", value === "unspecified" ? "" : value)}
+            >
+              <SelectTrigger id="delivery-option">
+                <SelectValue placeholder="Choose an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unspecified">Not specified</SelectItem>
+                <SelectItem value="delivery">Delivery available</SelectItem>
+                <SelectItem value="pickup">Pickup only</SelectItem>
+                <SelectItem value="both">Delivery or pickup</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

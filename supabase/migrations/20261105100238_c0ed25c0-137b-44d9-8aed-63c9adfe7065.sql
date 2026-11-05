@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN delivery_option text NULL; ALTER TABLE public.products ADD CONSTRAINT products_delivery_option_check CHECK (delivery_option IS NULL OR delivery_option IN ('delivery', 'pickup', 'both'));

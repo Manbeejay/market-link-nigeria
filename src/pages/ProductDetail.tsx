@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, MessageSquare, User } from "lucide-react";
+import { MapPin, MessageSquare, Truck, User } from "lucide-react";
 import ListingAssistant from "@/components/products/ListingAssistant";
 import { formatNaira } from "@/lib/nigeria";
 
@@ -25,11 +25,18 @@ interface DetailProduct {
   quantity_available: number;
   state: string | null;
   lga: string | null;
+  delivery_option: string | null;
   farmer_id: string;
   status: string;
   product_images: { id: string; url: string; position: number }[];
   profiles: { full_name: string | null; location: string | null; phone_number: string | null } | null;
 }
+
+const DELIVERY_LABELS: Record<string, string> = {
+  delivery: "Delivery available",
+  pickup: "Pickup only",
+  both: "Delivery or pickup",
+};
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,7 +62,7 @@ const ProductDetail = () => {
     supabase
       .from("products")
       .select(
-        "id, title, description, unit, price_per_unit, quantity_available, state, lga, farmer_id, status, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location, phone_number)",
+        "id, title, description, unit, price_per_unit, quantity_available, state, lga, delivery_option, farmer_id, status, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location, phone_number)",
       )
       .eq("id", id)
       .maybeSingle()
@@ -189,6 +196,12 @@ const ProductDetail = () => {
                   <MapPin className="h-4 w-4 text-green-600" />
                   {[product.lga, product.state].filter(Boolean).join(", ") || "Location not stated"}
                 </p>
+                {product.delivery_option && DELIVERY_LABELS[product.delivery_option] && (
+                  <p className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-primary" />
+                    {DELIVERY_LABELS[product.delivery_option]}
+                  </p>
+                )}
                 <p className="flex items-center gap-2">
                   <User className="h-4 w-4 text-green-600" />
                   {product.profiles?.full_name ?? "Verified farmer"}

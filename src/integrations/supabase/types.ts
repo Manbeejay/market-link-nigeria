@@ -478,6 +478,7 @@ export type Database = {
         Row: {
           category_id: string | null
           created_at: string
+          delivery_option: string | null
           description: string | null
           farmer_id: string
           id: string
@@ -493,6 +494,7 @@ export type Database = {
         Insert: {
           category_id?: string | null
           created_at?: string
+          delivery_option?: string | null
           description?: string | null
           farmer_id: string
           id?: string
@@ -508,6 +510,7 @@ export type Database = {
         Update: {
           category_id?: string | null
           created_at?: string
+          delivery_option?: string | null
           description?: string | null
           farmer_id?: string
           id?: string

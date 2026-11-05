@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, SearchX } from "lucide-react";
+import { MapPin, SearchX, Truck } from "lucide-react";
 import { NIGERIAN_STATES, formatNaira } from "@/lib/nigeria";
 
 interface BrowseProduct {
@@ -34,12 +34,19 @@ interface BrowseProduct {
   quantity_available: number;
   state: string | null;
   lga: string | null;
+  delivery_option: string | null;
   farmer_id: string;
   product_images: { id: string; url: string; position: number }[];
   profiles: { full_name: string | null; location: string | null } | null;
 }
 
 const ANY = "any";
+
+const DELIVERY_LABELS: Record<string, string> = {
+  delivery: "Delivery available",
+  pickup: "Pickup only",
+  both: "Delivery or pickup",
+};
 
 const Browse = () => {
   const { user, loading: authLoading } = useAuth();
@@ -78,7 +85,7 @@ const Browse = () => {
     let query = supabase
       .from("products")
       .select(
-        "id, title, description, category_id, unit, price_per_unit, quantity_available, state, lga, farmer_id, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location)",
+        "id, title, description, category_id, unit, price_per_unit, quantity_available, state, lga, delivery_option, farmer_id, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location)",
       )
       .eq("status", "available")
       .order("created_at", { ascending: false });
@@ -267,6 +274,12 @@ const Browse = () => {
                                 {[product.lga, product.state].filter(Boolean).join(", ") ||
                                   "Location not stated"}
                               </p>
+                              {product.delivery_option && DELIVERY_LABELS[product.delivery_option] && (
+                                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <Truck className="h-3.5 w-3.5 text-primary" />
+                                  {DELIVERY_LABELS[product.delivery_option]}
+                                </p>
+                              )}
                               <p className="text-sm text-gray-500 mt-auto pt-2">
                                 {Number(product.quantity_available)} {product.unit} available · by{" "}
                                 {product.profiles?.full_name ?? "Verified farmer"}
