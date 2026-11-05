@@ -1,0 +1,1 @@
+GRANT SELECT (delivery_option), UPDATE (delivery_option) ON public.products TO authenticated; GRANT SELECT (delivery_option), UPDATE (delivery_option) ON public.products TO service_role;
