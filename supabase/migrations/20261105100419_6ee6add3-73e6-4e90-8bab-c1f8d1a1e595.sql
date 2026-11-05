@@ -1,0 +1,1 @@
+GRANT INSERT (delivery_option) ON public.products TO authenticated; GRANT INSERT (delivery_option) ON public.products TO service_role;
