@@ -46,7 +46,7 @@ const ContactUs = () => {
         <Card>
           <CardHeader>
             <CardTitle>Send a message</CardTitle>
-            <CardDescription>MarketLink Nigeria, built for Greendale Farms MCS Ltd., Enugu.</CardDescription>
+            <CardDescription>MarketLink Nigeria Enterprises.</CardDescription>
           </CardHeader>
           <CardContent>
             {sent ? (
