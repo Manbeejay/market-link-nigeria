@@ -10,7 +10,7 @@ const TermsOfService = () => {
         <p className="text-gray-500 text-sm mb-8">Last updated: 2nd October, 2026</p>
 
         <p>
-          These terms govern your use of MarketLink Nigeria, a product built for Greendale Farms MCS Ltd.
+          These terms govern your use of MarketLink Nigeria, operated by MarketLink Nigeria Enterprises.
           By creating an account, you agree to them.
         </p>
 
