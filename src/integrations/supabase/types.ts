@@ -743,6 +743,20 @@ export type Database = {
         Args: never
         Returns: {
           category_name: string
+          delivery_option: string
+          id: string
+          price_per_unit: number
+          quantity_available: number
+          state: string
+          title: string
+          unit: string
+        }[]
+      }
+      get_fresh_today: {
+        Args: never
+        Returns: {
+          category_name: string
+          delivery_option: string
           id: string
           price_per_unit: number
           quantity_available: number
