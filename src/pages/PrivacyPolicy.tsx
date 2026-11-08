@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
         <p className="text-gray-500 text-sm mb-8">Last updated: October 2, 2026</p>
 
         <p>
-          MarketLink Nigeria is a product built for Greendale Farms MCS Ltd. This policy explains what
+          MarketLink Nigeria is operated by MarketLink Nigeria Enterprises. This policy explains what
           information we collect from farmers and buyers who use the platform, and how it's used.
         </p>
 
