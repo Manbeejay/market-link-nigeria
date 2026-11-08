@@ -124,8 +124,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="grid md:grid-cols-2 gap-4 items-center">
             <div className="text-gray-400 text-sm space-y-1">
-              <p>© 2026 MarketLink Nigeria. All rights reserved.</p>
-              <p>MarketLink Nigeria is a product built for Greendale Farms MCS Ltd.</p>
+              <p>© 2026 MarketLink Nigeria Enterprises. All rights reserved.</p>
             </div>
             <div className="flex space-x-6 text-sm text-gray-400 md:justify-end">
               <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
