@@ -63,15 +63,22 @@ const ContactUs = () => {
                   placeholder="Your name"
                   maxLength={100}
                   value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
                 <Input
                   type="email"
                   placeholder="Your email"
                   maxLength={254}
                   value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
                 <Textarea
                   placeholder="How can we help?"
                   rows={5}
                   maxLength={2000}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
                 <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={submitting}>
                   {submitting ? "Sending..." : "Send Message"}
                 </Button>
