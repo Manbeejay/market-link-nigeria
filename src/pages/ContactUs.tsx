@@ -41,7 +41,7 @@ const ContactUs = () => {
       <main className="flex-1 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
         <h1 className="text-3xl font-bold mb-2">Contact Us</h1>
         <p className="text-gray-600 mb-8">
-          Questions about buying, selling, or your account? Send us a message and we'll get back to you.
+          Questions about buying, selling, or your account? Send us a message, and we'll get back to you.
         </p>
         <Card>
           <CardHeader>
@@ -61,9 +61,8 @@ const ContactUs = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                   placeholder="Your name"
+                  maxLength={100}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
                 <Input
                   type="email"
                   placeholder="Your email"
@@ -73,9 +72,7 @@ const ContactUs = () => {
                 <Textarea
                   placeholder="How can we help?"
                   rows={5}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                />
+                  maxLength={2000}
                 <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={submitting}>
                   {submitting ? "Sending..." : "Send Message"}
                 </Button>
