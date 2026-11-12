@@ -29,7 +29,8 @@ interface DetailProduct {
   farmer_id: string;
   status: string;
   product_images: { id: string; url: string; position: number }[];
-  profiles: { full_name: string | null; location: string | null } | null;
+    profiles: { full_name: string | null; location: string | null } | null;
+}
 
 const DELIVERY_LABELS: Record<string, string> = {
   delivery: "Delivery available",
