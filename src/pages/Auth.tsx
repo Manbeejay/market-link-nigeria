@@ -173,7 +173,7 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Enter your password"
-                  minLength={6}
+                  minLength={8}
                 />
               </div>}
 
