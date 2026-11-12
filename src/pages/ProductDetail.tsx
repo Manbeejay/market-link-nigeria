@@ -29,8 +29,7 @@ interface DetailProduct {
   farmer_id: string;
   status: string;
   product_images: { id: string; url: string; position: number }[];
-  profiles: { full_name: string | null; location: string | null; phone_number: string | null } | null;
-}
+  profiles: { full_name: string | null; location: string | null } | null;
 
 const DELIVERY_LABELS: Record<string, string> = {
   delivery: "Delivery available",
@@ -62,7 +61,7 @@ const ProductDetail = () => {
     supabase
       .from("products")
       .select(
-        "id, title, description, unit, price_per_unit, quantity_available, state, lga, delivery_option, farmer_id, status, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location, phone_number)",
+        "id, title, description, unit, price_per_unit, quantity_available, state, lga, delivery_option, farmer_id, status, product_images(id, url, position), profiles!products_farmer_id_fkey(full_name, location)",
       )
       .eq("id", id)
       .maybeSingle()
