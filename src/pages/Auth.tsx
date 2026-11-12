@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useSubscription } from '@/hooks/useSubscription';
+import { isPasswordLeaked } from '@/lib/passwordCheck';
 
 type UserType = 'farmer' | 'buyer' | 'both';
 
@@ -50,6 +51,11 @@ const Auth = () => {
       } else if (isSignUp) {
         if (!fullName.trim()) {
           setError('Full name is required');
+          setLoading(false);
+          return;
+        }
+        if (await isPasswordLeaked(password)) {
+          setError('This password has appeared in known data breaches. Please choose a different one.');
           setLoading(false);
           return;
         }
