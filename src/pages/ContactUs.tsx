@@ -66,9 +66,8 @@ const ContactUs = () => {
                 <Input
                   type="email"
                   placeholder="Your email"
+                  maxLength={254}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
                 <Textarea
                   placeholder="How can we help?"
                   rows={5}
