@@ -30,11 +30,9 @@ const Settings = () => {
     if (!user) return;
     const load = async () => {
       setLoadingProfile(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("full_name, phone_number, location, user_type")
-        .eq("id", user.id)
-        .maybeSingle();
+            // Your own profile comes through a function so the phone number stays private to you.
+      const { data: rows, error } = await (supabase as any).rpc("get_my_profile");
+      const data = Array.isArray(rows) ? rows[0] : null;
       if (error) {
         toast.error("Could not load your profile.");
       } else if (data) {
