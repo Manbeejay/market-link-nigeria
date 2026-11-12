@@ -65,11 +65,11 @@ const ResetPassword = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New password</Label>
-                  <Input id="new-password" type="password" autoComplete="new-password" minLength={6} required value={password} onChange={(event) => setPassword(event.target.value)} />
+                  <Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(event) => setPassword(event.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm new password</Label>
-                  <Input id="confirm-password" type="password" autoComplete="new-password" minLength={6} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+                  <Input id="confirm-password" type="password" autoComplete="new-password" minLength={8} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
                 </div>
                 {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
                 <Button type="submit" className="w-full" disabled={saving}>{saving ? "Saving…" : "Update password"}</Button>
