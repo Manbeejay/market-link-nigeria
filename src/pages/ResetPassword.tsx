@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
+import { isPasswordLeaked } from "@/lib/passwordCheck";
 
 const ResetPassword = () => {
   const { session, loading, updatePassword, signOut } = useAuth();
@@ -30,6 +31,11 @@ const ResetPassword = () => {
       return;
     }
     setSaving(true);
+    if (await isPasswordLeaked(password)) {
+      setSaving(false);
+      setError("This password has appeared in known data breaches. Please choose a different one.");
+      return;
+    }
     const { error: updateError } = await updatePassword(password);
     setSaving(false);
     if (updateError) {
