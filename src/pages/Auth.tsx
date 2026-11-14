@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { useSubscription } from '@/hooks/useSubscription';
 import { isPasswordLeaked } from '@/lib/passwordCheck';
+import { supabase } from '@/integrations/supabase/client';
 
 type UserType = 'farmer' | 'buyer' | 'both';
 
@@ -28,6 +29,9 @@ const Auth = () => {
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   const { signUp, signIn, requestPasswordReset, user } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
@@ -37,6 +41,33 @@ const Auth = () => {
     if (!user || subLoading) return;
     navigate(isActive ? '/' : '/subscribe');
   }, [user, subLoading, isActive, navigate]);
+
+    useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendMessage('');
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    setResending(false);
+    if (error) {
+      setResendMessage(
+        error.message.toLowerCase().includes('rate')
+          ? 'Please wait a moment before trying again.'
+          : 'Could not resend the email. Please try again shortly.'
+      );
+    } else {
+      setResendMessage('Email sent again. It can take a few minutes to arrive.');
+      setCooldown(60);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,12 +99,15 @@ const Auth = () => {
           }
         } else {
           setConfirmationSent(true);
+          setCooldown(60);
         }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
             setError('Invalid email or password. Please try again.');
+          } else if (error.message.includes('Email not confirmed')) {
+            setConfirmationSent(true);
           } else {
             setError(error.message);
           }
@@ -109,7 +143,30 @@ const Auth = () => {
                 {confirmationSent ? "We've sent a confirmation link" : "If an account exists for this email, we've sent a password reset link"} to <span className="font-medium">{email}</span>.
                 {confirmationSent ? ' Click it to activate your account, then come back and sign in.' : ' Open it to choose a new password.'}
               </p>
-              {resetSent && <Button variant="link" onClick={() => { setResetSent(false); setIsForgotPassword(false); }}>Back to sign in</Button>}
+              {confirmationSent && (
+                <>
+                  <p className="text-sm text-gray-600">
+                    No email? Check your junk or spam folder. Outlook and Hotmail often hold new senders back.
+                  </p>
+                  <Button variant="outline" onClick={handleResend} disabled={resending || cooldown > 0}>
+                    {resending ? 'Sending...' : cooldown > 0 ? `Resend email in ${cooldown}s` : 'Resend email'}
+                  </Button>
+                  {resendMessage && <p className="text-sm text-gray-600">{resendMessage}</p>}
+                </>
+              )}
+              <Button
+                variant="link"
+                onClick={() => {
+                  setResetSent(false);
+                  setConfirmationSent(false);
+                  setIsForgotPassword(false);
+                  setIsSignUp(false);
+                  setResendMessage('');
+                  setError('');
+                }}
+              >
+                Back to sign in
+              </Button>
             </CardContent>
           </Card>
         ) : (
