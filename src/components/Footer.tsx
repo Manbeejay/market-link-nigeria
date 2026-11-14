@@ -2,10 +2,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Facebook, Instagram } from "lucide-react";
 import Logo from "./Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+// Paste the full page addresses here. An icon stays hidden while its address is empty.
+const SOCIAL_LINKS = {
+  facebook: "",
+  instagram: "https://www.instagram.com/marketlinknigeria",
+};
 
 const Footer = () => {
   const { toast } = useToast();
@@ -45,15 +51,28 @@ const Footer = () => {
               Connecting Nigerian farmers with buyers for fresh, quality agricultural products and fair trade.
             </p>
             <div className="flex space-x-4">
-              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                <span className="text-sm">f</span>
-              </div>
-              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                <span className="text-sm">t</span>
-              </div>
-              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-600">
-                <span className="text-sm">in</span>
-              </div>
+              {SOCIAL_LINKS.facebook && (
+                <a
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="MarketLink Nigeria on Facebook"
+                  className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {SOCIAL_LINKS.instagram && (
+                <a
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="MarketLink Nigeria on Instagram"
+                  className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
             </div>
           </div>
 
