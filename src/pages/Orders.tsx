@@ -86,9 +86,34 @@ const Orders = () => {
     setLoading(false);
   }, [user, toast]);
 
-    useEffect(() => {
+  useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!user) return;
+    const params = new URLSearchParams(window.location.search);
+    const reference = params.get("reference") || params.get("trxref");
+    if (!reference || !reference.startsWith("ord_")) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    (async () => {
+      const { data, error } = await supabase.functions.invoke("verify-order-payment", {
+        body: { reference },
+      });
+      if (error || data?.error) {
+        toast({
+          title: "Could not confirm payment yet",
+          description: data?.error ?? "Please refresh in a minute. If it persists, contact us.",
+          variant: "destructive",
+        });
+      } else if (data?.status === "paid") {
+        toast({ title: "Payment confirmed" });
+      } else if (data?.status === "pending") {
+        toast({ title: "Payment is still being confirmed", description: data?.message });
+      }
+      load(true);
+    })();
+  }, [user, load, toast]);
 
   useEffect(() => {
     if (!user) return;
