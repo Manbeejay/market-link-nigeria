@@ -70,9 +70,9 @@ const Orders = () => {
     if (!authLoading && !user) navigate("/auth");
   }, [authLoading, user, navigate]);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     const [{ data, error }, { data: reviews }] = await Promise.all([
       supabase.from("orders").select(SELECT).order("created_at", { ascending: false }),
       supabase.from("reviews").select("order_id").eq("reviewer_id", user.id),
@@ -86,9 +86,30 @@ const Orders = () => {
     setLoading(false);
   }, [user, toast]);
 
-  useEffect(() => {
+    useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!user) return;
+    const refresh = () => load(true);
+    const channel = supabase
+      .channel("orders-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, refresh)
+      .subscribe();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", refresh);
+    const timer = setInterval(refresh, 30000);
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", refresh);
+      clearInterval(timer);
+    };
+  }, [user, load]);
 
   const setStatus = async (order: OrderRow, status: string, message: string) => {
     setBusyId(order.id);
