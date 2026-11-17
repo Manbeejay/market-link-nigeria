@@ -212,10 +212,10 @@ const Orders = () => {
                 disabled={busyId === order.id}
                 onClick={() => setStatus(order, "delivered", "Marked as delivered")}
               >
-                Mark completed
+                Mark delivered
               </Button>
             )}
-            {role === "buyer" && (order.status === "delivered" || order.status === "paid") && (
+            {role === "buyer" && order.status === "delivered" && (
               <Button
                 className="bg-green-600 hover:bg-green-700"
                 disabled={busyId === order.id}
