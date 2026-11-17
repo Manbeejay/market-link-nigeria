@@ -47,7 +47,7 @@ const ProductDetail = () => {
 
   const [product, setProduct] = useState<DetailProduct | null>(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState("1");
+  const [quantity, setQuantity] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -91,6 +91,10 @@ const ProductDetail = () => {
       });
       return;
     }
+    const ok = window.confirm(
+      `Send a request for ${qty} ${product.unit} of ${product.title}? Total: ${formatNaira(total)}. You pay only after the farmer accepts.`,
+    );
+    if (!ok) return;
     setSubmitting(true);
     const { error } = await supabase.from("orders").insert({
       buyer_id: user.id,
@@ -228,6 +232,7 @@ const ProductDetail = () => {
                           min="1"
                           max={Number(product.quantity_available)}
                           value={quantity}
+                          placeholder={`How many ${product.unit}?`}
                           onChange={(e) => setQuantity(e.target.value)}
                         />
                       </div>
@@ -237,9 +242,9 @@ const ProductDetail = () => {
                       <Button
                         className="w-full bg-green-600 hover:bg-green-700"
                         onClick={requestOrder}
-                        disabled={submitting || product.status !== "available"}
+                        disabled={submitting || !(qty > 0) || product.status !== "available"}
                       >
-                        {submitting ? "Sending request..." : "Request this order"}
+                        {submitting ? "Sending request..." : "Send request (no payment yet)"}
                       </Button>
                       <p className="text-sm text-gray-500">
                         You pay only after the farmer accepts your request.
