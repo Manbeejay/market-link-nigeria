@@ -10,10 +10,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, MessageCircle, Star } from "lucide-react";
+import { AlertTriangle, ClipboardList, MessageCircle, Star } from "lucide-react";
 import { formatNaira } from "@/lib/nigeria";
 import OrderChat from "@/components/orders/OrderChat";
 import ReviewDialog from "@/components/orders/ReviewDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface OrderRow {
   id: string;
@@ -47,7 +56,7 @@ const statusLabels: Record<string, string> = {
   delivered: "Delivered – awaiting buyer confirmation",
   completed: "Completed",
   cancelled: "Declined / cancelled",
-  disputed: "Disputed",
+  disputed: "Disputed – under review",
 };
 
 const SELECT =
@@ -65,6 +74,10 @@ const Orders = () => {
   const [reviewOrder, setReviewOrder] = useState<
     { id: string; revieweeId: string; name: string } | null
   >(null);
+  const [disputeOrder, setDisputeOrder] = useState<{ id: string; title: string } | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeDetails, setDisputeDetails] = useState("");
+  const [disputeBusy, setDisputeBusy] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -165,6 +178,33 @@ const Orders = () => {
     if (data?.authorization_url) window.location.href = data.authorization_url;
   };
 
+  const submitDispute = async () => {
+    if (!disputeOrder) return;
+    if (!disputeReason) {
+      toast({ title: "Choose a reason", variant: "destructive" });
+      return;
+    }
+    setDisputeBusy(true);
+    const { error } = await (supabase as any).rpc("raise_order_dispute", {
+      p_order_id: disputeOrder.id,
+      p_reason: disputeReason,
+      p_details: disputeDetails,
+    });
+    setDisputeBusy(false);
+    if (error) {
+      toast({ title: "Could not report the problem", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: "Problem reported",
+      description: "MarketLink Nigeria will review it and contact both of you.",
+    });
+    setDisputeOrder(null);
+    setDisputeReason("");
+    setDisputeDetails("");
+    load(true);
+  };
+
   const purchases = orders.filter((o) => o.buyer_id === user?.id);
   const sales = orders.filter((o) => o.farmer_id === user?.id);
 
@@ -199,6 +239,12 @@ const Orders = () => {
               {role === "buyer" ? `Farmer: ${otherName}` : `Buyer: ${otherName}`} ·{" "}
               {new Date(order.created_at).toLocaleDateString()}
             </p>
+            {order.status === "disputed" && (
+              <p className="text-sm text-red-700">
+                A problem was reported on this order. MarketLink Nigeria is reviewing it and will
+                contact both of you.
+              </p>
+            )}
             {role === "farmer" && order.status === "paid" && order.commission_amount != null && (
               <p className="text-sm text-gray-500">
                 Platform commission: {formatNaira(Number(order.commission_amount))}
@@ -270,6 +316,18 @@ const Orders = () => {
                 Confirm received
               </Button>
             )}
+                        {role === "buyer" && (order.status === "paid" || order.status === "delivered") && (
+              <Button
+                variant="outline"
+                className="text-red-600 hover:text-red-700"
+                onClick={() =>
+                  setDisputeOrder({ id: order.id, title: order.products?.title ?? "this order" })
+                }
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Report a problem
+              </Button>
+            )}
             {canReview && (
               <Button
                 variant="outline"
@@ -333,6 +391,55 @@ const Orders = () => {
         )}
       </main>
       <Footer />
+
+      <Dialog
+        open={!!disputeOrder}
+        onOpenChange={(open) => {
+          if (!open) setDisputeOrder(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report a problem</DialogTitle>
+            <DialogDescription>
+              {disputeOrder?.title}. Please try the order chat with the farmer first. If it is not
+              resolved, tell us what went wrong and MarketLink Nigeria will review it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <select
+              className="w-full rounded-md border border-gray-300 p-2 text-sm"
+              value={disputeReason}
+              onChange={(e) => setDisputeReason(e.target.value)}
+            >
+              <option value="">Choose a reason</option>
+              <option value="Not delivered">Not delivered</option>
+              <option value="Not as described">Not as described</option>
+              <option value="Wrong quantity">Wrong quantity</option>
+              <option value="Poor quality">Poor quality</option>
+              <option value="Other">Other</option>
+            </select>
+            <Textarea
+              placeholder="What happened? Include dates and anything the farmer said."
+              value={disputeDetails}
+              onChange={(e) => setDisputeDetails(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDisputeOrder(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700"
+              disabled={disputeBusy}
+              onClick={submitDispute}
+            >
+              {disputeBusy ? "Sending..." : "Report problem"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {chatOrder && (
         <OrderChat
