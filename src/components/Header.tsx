@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,17 +7,25 @@ import Logo from "./Logo";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
 
+const navButton =
+  "text-gray-700 hover:text-green-600 px-2 sm:px-4 h-9 sm:h-10 text-sm sm:text-base";
+
 const Header = () => {
   const { user } = useAuth();
 
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
+          {/* Logo: icon only on phones, with text from sm upward */}
+          <div className="flex items-center shrink-0">
             <Link to="/">
-              <Logo size="md" showText={true} />
+              <span className="hidden sm:block">
+                <Logo size="md" showText={true} />
+              </span>
+              <span className="sm:hidden">
+                <Logo size="md" showText={false} />
+              </span>
             </Link>
           </div>
 
@@ -35,37 +42,40 @@ const Header = () => {
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-0.5 sm:space-x-4">
             <Link to="/browse">
-              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+              <Button variant="ghost" className={navButton}>
                 Browse Products
               </Button>
             </Link>
+
+            {user && <NotificationBell />}
+
             <Link to="/my-listings">
-              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+              <Button variant="ghost" className={navButton}>
                 My Listings
               </Button>
             </Link>
             <Link to="/orders">
-              <Button variant="ghost" className="text-gray-700 hover:text-green-600">
+              <Button variant="ghost" className={navButton}>
                 Orders
               </Button>
             </Link>
-            
+
             {user ? (
-              <>
-                <NotificationBell />
-                <UserMenu />
-              </>
+              <UserMenu />
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                  <Button
+                    variant="outline"
+                    className="border-green-600 text-green-600 hover:bg-green-50 px-2 sm:px-4 h-9 sm:h-10 text-sm sm:text-base"
+                  >
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white px-2 sm:px-4 h-9 sm:h-10 text-sm sm:text-base">
                     Get Started
                   </Button>
                 </Link>
