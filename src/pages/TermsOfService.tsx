@@ -56,14 +56,14 @@ const TermsOfService = () => {
         </p>
 
         <h2 className="text-xl font-semibold mt-8 mb-2">Problems with orders</h2>
-        <ol className="list-disc pl-6 space-y-1">
+        <ul className="list-disc pl-6 space-y-1">
           <li>If there is a problem with an order, the buyer and farmer must first try to resolve it through the order chat.</li>
           <li>If it is not resolved, the buyer may use “Report a problem” on the order within [48 hours after the order is marked delivered, or within 7 days of payment if it is never marked delivered].</li>
           <li>The order is then marked as disputed, and both parties are notified. MarketLink Nigeria will ask each party for relevant information, such as photos and messages, and aims to respond within [3] business days.</li>
           <li>The outcome may be completion of the order, a full or partial refund, or closure of the order without a refund.</li>
           <li>Paystack sends the farmer’s share to the farmer when the buyer pays, and MarketLink Nigeria does not hold it. Where a refund is agreed or decided, [the farmer agrees to return the refunded amount, and MarketLink Nigeria will return its commission on that amount].</li>
           <li>MarketLink Nigeria is a platform and is not a party to the sale. It decides disputes in good faith on the information provided. Nothing here limits any rights the parties have under Nigerian law.</li>
-        </ol>
+        </ul>
 
         <h2 className="text-xl font-semibold mt-8 mb-2">Account suspension</h2>
         <p>
