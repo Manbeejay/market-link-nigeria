@@ -52,7 +52,7 @@ const statusStyles: Record<string, string> = {
 
 const typeLabels: Record<string, string> = {
   order_payment: "Order payment",
-  commission: "Platform commission",
+  commission: "Platform commission (deducted from your sale)",
   subscription: "Membership fee",
   payout: "Payout",
 };
@@ -189,7 +189,14 @@ const Wallet = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge className={statusStyles[t.status] ?? ""}>{t.status}</Badge>
-                          <span className="font-semibold text-green-700">
+                          <span
+                            className={`font-semibold ${
+                              t.type === "commission" ? "text-gray-600" : "text-green-700"
+                            }`}
+                          >
+                            {t.type === "commission" ? "−" : ""}
+                            {formatNaira(Number(t.amount))}
+                          </span>
                             {formatNaira(Number(t.amount))}
                           </span>
                         </div>
