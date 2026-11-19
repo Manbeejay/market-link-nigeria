@@ -33,6 +33,13 @@ interface PayoutRow {
   processed_at: string | null;
 }
 
+interface EarningOrder {
+  id: string;
+  status: string;
+  commission_amount: number | null;
+  farmer_payout_amount: number | null;
+}
+
 const statusStyles: Record<string, string> = {
   success: "bg-green-100 text-green-800",
   successful: "bg-green-100 text-green-800",
@@ -55,6 +62,7 @@ const Wallet = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState<TransactionRow[]>([]);
   const [payouts, setPayouts] = useState<PayoutRow[]>([]);
+  const [earningOrders, setEarningOrders] = useState<EarningOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,7 +72,7 @@ const Wallet = () => {
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [{ data: tx }, { data: po }] = await Promise.all([
+      const [{ data: tx }, { data: po }, { data: eo }] = await Promise.all([
       supabase
         .from("transactions")
         .select("id, type, amount, provider, provider_reference, status, created_at")
@@ -73,9 +81,15 @@ const Wallet = () => {
         .from("payouts")
         .select("id, amount, status, requested_at, processed_at")
         .order("requested_at", { ascending: false }),
+      supabase
+        .from("orders")
+        .select("id, status, commission_amount, farmer_payout_amount")
+        .eq("farmer_id", user.id)
+        .in("status", ["paid", "delivered", "completed"]),
     ]);
     setTransactions((tx ?? []) as TransactionRow[]);
     setPayouts((po ?? []) as PayoutRow[]);
+    setEarningOrders((eo ?? []) as EarningOrder[]);
     setLoading(false);
   }, [user]);
 
@@ -83,20 +97,14 @@ const Wallet = () => {
     load();
   }, [load]);
 
-  const earned = transactions
-    .filter((t) => t.type === "order_payment" && ["success", "successful", "paid"].includes(t.status))
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  const commission = transactions
-    .filter((t) => t.type === "commission")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  const paidOut = payouts
-    .filter((p) => ["processed", "paid", "successful"].includes(p.status))
-    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const earned = earningOrders.reduce((sum, o) => sum + Number(o.farmer_payout_amount ?? 0), 0);
+  const commission = earningOrders.reduce((sum, o) => sum + Number(o.commission_amount ?? 0), 0);
+  const completedCount = earningOrders.filter((o) => o.status === "completed").length;
 
   const summary = [
-    { label: "Total earned from orders", value: earned, icon: Receipt },
-    { label: "Platform commission deducted", value: commission, icon: Receipt },
-    { label: "Paid out to your bank", value: paidOut, icon: ArrowDownCircle },
+    { label: "Total earned from orders", display: formatNaira(earned), icon: Receipt },
+    { label: "Platform commission deducted", display: formatNaira(commission), icon: Receipt },
+    { label: "Completed orders", display: String(completedCount), icon: ArrowDownCircle },
   ];
 
   return (
@@ -124,12 +132,17 @@ const Wallet = () => {
                 <item.icon className="h-5 w-5 text-green-600 mb-3" />
                 <p className="text-sm text-gray-600">{item.label}</p>
                 <p className="text-xl font-bold text-gray-900 mt-1">
-                  {loading ? "—" : formatNaira(item.value)}
+                  {loading ? "—" : item.display}
                 </p>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        <p className="text-sm text-gray-500 -mt-6 mb-10">
+          Your share is sent to your bank directly by Paystack, on its settlement schedule. Check
+          your bank statement or Paystack for settlement.
+        </p>
 
         <div className="mb-10">
           <WalletInsights />
