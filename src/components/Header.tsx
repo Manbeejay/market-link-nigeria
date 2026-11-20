@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import HowItWorksDialog from "./HowItWorksDialog";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
