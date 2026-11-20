@@ -17,7 +17,7 @@ const presets = [
   { label: "Last 90 days", days: 90 },
 ];
 
-const WalletInsights = () => {
+const WalletInsights = ({ mode = "farmer" }: { mode?: "farmer" | "buyer" }) => {
   const today = new Date();
   const [from, setFrom] = useState(iso(new Date(Date.now() - 30 * 864e5)));
   const [to, setTo] = useState(iso(today));
@@ -46,7 +46,7 @@ const WalletInsights = () => {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${data.session?.access_token ?? ""}`,
         },
-        body: JSON.stringify({ from, to }),
+        body: JSON.stringify({ from, to, mode }),
       });
       if (!res.ok || !res.body) {
         const msg = await res.json().catch(() => null);
@@ -74,10 +74,13 @@ const WalletInsights = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" /> Explain my earnings
+          <Sparkles className="h-5 w-5 text-primary" />{" "}
+          {mode === "buyer" ? "Explain my payments" : "Explain my earnings"}
         </CardTitle>
         <CardDescription>
-          Pick a period and get a plain-language summary of your earnings and payout trends.
+          {mode === "buyer"
+            ? "Pick a period and get a plain-language summary of what you paid for and when."
+            : "Pick a period and get a plain-language summary of your earnings and sales trends."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
