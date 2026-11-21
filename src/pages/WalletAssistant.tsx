@@ -30,10 +30,26 @@ interface ThreadRow {
   updated_at: string;
 }
 
-const SUGGESTIONS = [
+type WalletRole = "farmer" | "buyer" | "both";
+
+const FARMER_SUGGESTIONS = [
   "How much have I earned in total?",
   "How much commission was taken from my last order?",
-  "Which payouts are still pending?",
+  "Which of my orders are paid but not yet delivered?",
+  "Summarise my sales this month.",
+];
+
+const BUYER_SUGGESTIONS = [
+  "How much have I paid for orders in total?",
+  "What was my last payment?",
+  "Which of my orders are still waiting for the farmer or for payment?",
+  "Summarise what I paid this month.",
+];
+
+const BOTH_SUGGESTIONS = [
+  "How much have I earned from my sales?",
+  "How much have I paid for orders as a buyer?",
+  "Which of my orders are still in progress?",
   "Summarise my payments this month.",
 ];
 
@@ -43,10 +59,12 @@ const ChatWindow = ({
   threadId,
   initialMessages,
   onFinished,
+  role,
 }: {
   threadId: string;
   initialMessages: UIMessage[];
   onFinished: () => void;
+  role: WalletRole;
 }) => {
   const { toast } = useToast();
   const [input, setInput] = useState("");
@@ -82,6 +100,18 @@ const ChatWindow = ({
   });
 
   const busy = status === "submitted" || status === "streaming";
+  const suggestions =
+    role === "buyer" ? BUYER_SUGGESTIONS : role === "both" ? BOTH_SUGGESTIONS : FARMER_SUGGESTIONS;
+  const emptyDescription =
+    role === "buyer"
+      ? "Questions about your payments and orders, answered from your own records."
+      : role === "both"
+      ? "Questions about your sales and your payments for orders, answered from your own records."
+      : "Questions about your earnings, commission and sales, answered from your own records.";
+  const placeholder =
+    role === "buyer"
+      ? "e.g. What was my last payment?"
+      : "e.g. How much commission was taken from my last order?";
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -103,16 +133,16 @@ const ChatWindow = ({
             <ConversationEmptyState
               icon={<Sprout className="h-14 w-14 text-primary" />}
               title="Ask about your wallet"
-              description="Questions about earnings, commission, payments and payouts — answered from your own records."
+              description={emptyDescription}
             >
               <div className="flex flex-col items-center gap-3">
                 <Sprout className="h-14 w-14 text-primary" />
                 <h3 className="font-semibold text-foreground">Ask about your wallet</h3>
                 <p className="text-sm text-muted-foreground max-w-sm text-center">
-                  Questions about earnings, commission, payments and payouts — answered from your own records.
+                  {emptyDescription}
                 </p>
                 <div className="mt-2 flex flex-wrap justify-center gap-2">
-                  {SUGGESTIONS.map((s) => (
+                  {suggestions.map((s) => (
                     <Button key={s} variant="outline" size="sm" onClick={() => submit(s)}>
                       {s}
                     </Button>
@@ -154,7 +184,7 @@ const ChatWindow = ({
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. Why was my last payout smaller than expected?"
+            placeholder={placeholder}
           />
           <PromptInputFooter className="justify-end">
             <PromptInputSubmit status={status} onStop={stop} disabled={!busy && !input.trim()} />
@@ -173,6 +203,21 @@ const WalletAssistant = () => {
   const [threads, setThreads] = useState<ThreadRow[]>([]);
   const [activeMessages, setActiveMessages] = useState<UIMessage[] | null>(null);
   const creating = useRef(false);
+  const [role, setRole] = useState<WalletRole>("farmer");
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ count: sold }, { count: bought }, { count: listed }] = await Promise.all([
+        supabase.from("orders").select("id", { count: "exact", head: true }).eq("farmer_id", user.id),
+        supabase.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", user.id),
+        supabase.from("products").select("id", { count: "exact", head: true }).eq("farmer_id", user.id),
+      ]);
+      const isFarmer = (sold ?? 0) > 0 || (listed ?? 0) > 0;
+      const isBuyer = (bought ?? 0) > 0;
+      setRole(isFarmer && isBuyer ? "both" : isBuyer ? "buyer" : "farmer");
+    })();
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -310,6 +355,7 @@ const WalletAssistant = () => {
                 threadId={threadId}
                 initialMessages={activeMessages}
                 onFinished={loadThreads}
+                role={role}
               />
             ) : (
               <div className="p-6 space-y-3">
